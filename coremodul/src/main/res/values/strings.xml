@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">CoreModul</string>
+    <string name="api_error">Something bad happened, please try later</string>
+    <string name="api_unauthorized">You don\'t have permission to access this app</string>
+    <string name="app_exit">Press again to exit</string>
+
+    <string name="download_apk_title">Download Package</string>
+    <string name="download_apk_message">Downloading, please wait...</string>
+
+    <string name="runtime_permissions_txt">Please enable requested service</string>
+
+    <integer name="menu_animation_duration">500</integer>
+    <integer name="menu_p_animation_duration">300</integer>
+
+    <string name="msg_connection_issue">Cannot connect to Internet...Please check your connection!</string>
+    <string name="msg_server_issue">The server could not be found. Please try again after some time!!</string>
+    <string name="msg_auth_issue">Cannot connect to Internet...Please check your connection</string>
+    <string name="msg_parsing_issue">Parsing error! Please try again after some time!!</string>
+    <string name="msg_noinet_issue">Cannot connect to Internet...Please check your connection!</string>
+    <string name="msg_timeout_issue">Connection TimeOut! Please check your internet connection.</string>
+    <string name="msg_default_issue">Something went wrong, please try again</string>
+</resources>

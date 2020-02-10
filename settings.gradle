@@ -1,0 +1,2 @@
+include ':app', ':custommodul', ':coremodul'
+rootProject.name='zigistreamingbox'

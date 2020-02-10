@@ -1,0 +1,32 @@
+<LinearLayout
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingLeft="10dp"
+    tools:ignore="MissingDefaultResource">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:layout_marginBottom="@dimen/_6sdp"
+        card_view:cardElevation="0dp"
+        card_view:cardBackgroundColor="@android:color/transparent">
+
+    <TextView
+        android:id="@+id/tv_kategori"
+        android:textSize="@dimen/_9sdp"
+        android:text="@string/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="normal"
+        android:autoSizePresetSizes="@values/autosize_text_sizes"
+        android:textColor="#000"/>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

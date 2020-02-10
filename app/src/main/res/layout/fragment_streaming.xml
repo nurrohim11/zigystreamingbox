@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".streaming.StreamingFragment">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:id="@+id/ll_kategori"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:background="#17FFFFFF"
+        tools:ignore="Suspicious0dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_9sdp"
+            android:id="@+id/tv_search"
+            android:textColor="#fff"
+            android:paddingStart="15dp"
+            android:textStyle="bold"
+            android:text="Searching"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="5dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv_kategori"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_toRightOf="@+id/ll_kategori"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_30sdp"
+            android:id="@+id/v_atas"
+            android:background="@android:color/transparent"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_item"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:scrollbarStyle="insideOverlay" />
+    </LinearLayout>
+
+</RelativeLayout>
