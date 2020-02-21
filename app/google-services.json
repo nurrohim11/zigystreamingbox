@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "59965123903",
+    "firebase_url": "https://zigistreamingbox.firebaseio.com",
+    "project_id": "zigistreamingbox",
+    "storage_bucket": "zigistreamingbox.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59965123903:android:869866cdfc790f6f31378a",
+        "android_client_info": {
+          "package_name": "id.net.gmedia.zigistreamingbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59965123903-uegco76g763ajk8drtt2f4do7nt4qau5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.net.gmedia.zigistreamingbox",
+            "certificate_hash": "5f42eb4e8633c65fec9aeac6883abac45b55f907"
+          }
+        },
+        {
+          "client_id": "59965123903-e52eat03pi25gbsh68gooq9ltrrdl8h6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAL-m3iJ7SsuBZbVwlYXq6itRGJih4QtqI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59965123903-e52eat03pi25gbsh68gooq9ltrrdl8h6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

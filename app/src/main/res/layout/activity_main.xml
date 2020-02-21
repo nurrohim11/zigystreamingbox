@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:attrs="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/tvbg"
     android:orientation="horizontal"
     tools:context=".MainActivity">
@@ -41,20 +42,61 @@
             android:layout_height="match_parent"
             tools:context=".home.HomeFragment">
 
-            <ImageView
+<!--            <ImageView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:id="@+id/img_home"-->
+<!--                android:scaleType="centerCrop"-->
+<!--                android:src="@drawable/iklan"/>-->
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <androidx.viewpager.widget.ViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentTop="true" />
+
+                <com.rd.PageIndicatorView
+                    android:id="@+id/pageIndicatorView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentBottom="true"
+                    android:foregroundGravity="bottom"
+                    app:piv_animationType="worm"
+                    app:piv_dynamicCount="true"
+                    app:piv_interactiveAnimation="true"
+                    app:piv_selectedColor="@color/gray_50"
+                    app:piv_unselectedColor="@color/gray_300"
+                    attrs:piv_padding="12dp"
+                    attrs:piv_radius="8dp"
+                    app:piv_viewPager="@id/pager" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/ll_live_streaming">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_item_live_streaming"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/img_home"
-                android:scaleType="centerCrop"
-                android:src="@drawable/sd"/>
+                android:layout_gravity="center|center_horizontal|center_vertical"
+                android:gravity="center|center_horizontal|center_vertical"
+                android:scrollbarStyle="insideOverlay" />
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:id="@+id/ll_streaming"
-            tools:context=".streaming.StreamingFragment">
+            android:id="@+id/ll_streaming">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,59 +144,12 @@
             </LinearLayout>
 
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:id="@+id/ll_live_streaming"
-            tools:context=".streaming.StreamingFragment">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/ll_kategori_live"
-                android:layout_weight="1.3"
-                android:orientation="vertical"
-                android:paddingTop="10dp"
-                android:background="#17FFFFFF"
-                tools:ignore="Suspicious0dp">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/_9sdp"
-                    android:id="@+id/tv_search_live"
-                    android:textColor="#fff"
-                    android:paddingStart="15dp"
-                    android:textStyle="bold"
-                    android:text="Searching"/>
-                <androidx.recyclerview.widget.RecyclerView
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="20dp"
-                    android:paddingLeft="5dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/rv_kategori_live_streaming"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="0.3"
-                android:layout_height="match_parent">
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/_30sdp"
-                    android:id="@+id/v_atas_live"
-                    android:background="@android:color/transparent"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_item_live_streaming"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center|center_horizontal|center_vertical"
-                    android:gravity="center|center_horizontal|center_vertical"
-                    android:scrollbarStyle="insideOverlay" />
-            </LinearLayout>
-
-        </LinearLayout>
     </FrameLayout>
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pb_loading"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
 
 </LinearLayout>

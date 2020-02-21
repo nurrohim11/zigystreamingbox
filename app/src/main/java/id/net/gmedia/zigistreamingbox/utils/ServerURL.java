@@ -7,9 +7,20 @@ import android.net.Uri;
  */
 
 public class ServerURL {
+    private static String base_url ="http://192.168.20.62/gmedia/zigy/api/";
+
+    public static String get_slider =base_url+"master/iklan";
+    public static String post_fcmid = base_url+"authentication/auth";
+    public static String get_kategori_streaming = base_url+"streaming/kategori_streaming";
+    public static String get_konten_streaming = base_url+"streaming/item_streaming";
+    public static String get_logo = base_url+"master/logo_apps";
+    public static String get_channel = base_url+"live/index";
+    public static String get_timertv = base_url+"master/timer_tv";
+    public static String get_advertisement = base_url+"master/advertisement";
+    public static String get_appear_text = base_url+"master/appear_text";
 
     public static String baseUrl = "http://gmediatv.gmedia.bz/";
-    //public static String baseUrl = "http://192.168.12.74/gmedia_tv/";
+//    public static String baseUrl = "http://192.168.20.72/project/gmedia_tv/";
 
     public static String getLink = baseUrl + "api/link/get_link/";
     //public static String getLink = baseUrl + "api/link/get_link_dummy/";

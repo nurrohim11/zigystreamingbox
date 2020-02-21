@@ -19,7 +19,7 @@ public class SessionManager {
     int PRIVATE_MODE = 0;
 
     // Sharedpref file name
-    private static final String PREF_NAME = "GmediaPerkasaApp";
+    private static final String PREF_NAME = "GmediaTV";
 
     // All Shared Preferences Keys
     public static final String TAG_USERNAME = "username";
@@ -32,6 +32,8 @@ public class SessionManager {
     public static final String TAG_FOTO = "foto";
     public static final String TAG_KONTAK = "kontak";
     public static final String TAG_ID = "id_record";
+    public static final String TAG_FCMID ="fcm_id";
+    public static final String TAG_COUNT_SLIDER = "0";
 
     // Constructor
     public SessionManager(Context context){
@@ -76,6 +78,20 @@ public class SessionManager {
         editor.putString(TAG_KONTAK, kontak);
 
         // commit changes
+        editor.commit();
+    }
+
+
+    public void saveFcmId(String fcm_id){
+
+        editor.putString(TAG_FCMID, fcm_id);
+
+        // commit changes
+        editor.commit();
+    }
+
+    public void saveCountSlider(int count_slider){
+        editor.putInt(TAG_COUNT_SLIDER,count_slider);
         editor.commit();
     }
 
@@ -128,6 +144,14 @@ public class SessionManager {
 
     public String getKontak(){
         return pref.getString(TAG_KONTAK, "");
+    }
+
+    public String getFcmid(){
+        return pref.getString(TAG_FCMID, "");
+    }
+
+    public int getCountSlider(){
+        return pref.getInt(TAG_COUNT_SLIDER, 0);
     }
 
     /**

@@ -25,6 +25,7 @@ public class SavedChanelManager {
 	// All Shared Preferences Keys
 	public static final String TAG_Nama = "nama";
 	public static final String TAG_Link = "link";
+	public static final String TAG_Icon = "icon";
 
 	// Constructor
 	public SavedChanelManager(Context context){
@@ -39,8 +40,10 @@ public class SavedChanelManager {
 	public void saveLastChanel(String nama, String link){
 
 		editor.putString(TAG_Nama, nama);
-		
+
 		editor.putString(TAG_Link, link);
+
+		editor.putString(TAG_Icon, link);
 
 		editor.commit();
 	}	
@@ -54,6 +57,7 @@ public class SavedChanelManager {
 		HashMap<String, String> user = new HashMap<String, String>();
 		user.put(TAG_Nama, pref.getString(TAG_Nama, null));
 		user.put(TAG_Link, pref.getString(TAG_Link, null));
+		user.put(TAG_Icon, pref.getString(TAG_Icon, null));
 		return user;
 	}
 
@@ -65,9 +69,13 @@ public class SavedChanelManager {
 		return pref.getString(TAG_Link, null);
 	}
 
+	public String getIcon(){
+		return pref.getString(TAG_Icon, null);
+	}
+
 	// Get Login State
 	public boolean isSaved(){
-		if(getLastChanel().get(TAG_Link) != null && !getLastChanel().get(TAG_Link).equals("")){
+		if(getLastChanel().get(TAG_Link) != null && !getLastChanel().get(TAG_Link).equals("") && !getLastChanel().get(TAG_Icon).equals("")){
 			return true;
 		}else{
 			return false;

@@ -1,11 +1,12 @@
 package id.net.gmedia.zigistreamingbox;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,19 +20,23 @@ import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.rd.PageIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,35 +53,43 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import co.id.gmedia.coremodul.ApiVolley;
 import co.id.gmedia.coremodul.AppRequestCallback;
 import co.id.gmedia.coremodul.ItemValidation;
+import co.id.gmedia.coremodul.SessionManager;
 import id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils;
-import id.net.gmedia.zigistreamingbox.home.HomeFragment;
-import id.net.gmedia.zigistreamingbox.live.LiveFragment;
+import id.net.gmedia.zigistreamingbox.adapter.SliderHomeAdapter;
+import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
+import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
+import id.net.gmedia.zigistreamingbox.live.adapter.LiveItemAdapter;
 import id.net.gmedia.zigistreamingbox.streaming.ItemAdapter;
 import id.net.gmedia.zigistreamingbox.streaming.ItemModel;
 import id.net.gmedia.zigistreamingbox.streaming.KategoriAdapter;
 import id.net.gmedia.zigistreamingbox.streaming.KategoriModel;
-import id.net.gmedia.zigistreamingbox.streaming.StreamingFragment;
+import id.net.gmedia.zigistreamingbox.utils.FormatItem;
 import id.net.gmedia.zigistreamingbox.utils.InternetCheck;
+import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
+import id.net.gmedia.zigistreamingbox.utils.ServerURL;
 import id.net.gmedia.zigistreamingbox.utils.Url;
 import id.net.gmedia.zigistreamingbox.utils.Utils;
 
-import static id.net.gmedia.zigistreamingbox.streaming.StreamingFragment.LOG_TAG;
-import static id.net.gmedia.zigistreamingbox.utils.Screen.getScreenHeight;
-import static id.net.gmedia.zigistreamingbox.utils.Screen.getScreenWidth;
 
 public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.MenuAdapterCallback, KategoriAdapter.KategoriAdapterCallback {
     RecyclerView rvMenu;
     LinearLayout llMenu;
     ImageView imgLogo;
+    SessionManager sessionManager;
     private LinearLayout llHome, llStreaming, llLiveStreaming;
     private List<MenuModel> menuModels = new ArrayList<>();
+    private List<SliderModel> sliderModels = new ArrayList<>();
+    public SliderHomeAdapter sliderHomeAdapter;
     private ItemValidation iv = new ItemValidation();
     private AdapterMenuUtama mAdapter;
     private int savedC = 0;
+    private int saveLive = 0;
     private int state_layar = 1;
 
     public static List<KategoriModel> itemKategoriStreaming = new ArrayList<>();
@@ -84,9 +97,16 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     public KategoriAdapter kategoriStreamingAdapter;
     public ItemAdapter itemStreamingAdapter;
     String kategori_streaming;
-    private RecyclerView rvKategoriStreaming, rvitemKategoriStreaming;
+    private RecyclerView rvKategoriStreaming, rvitemKategoriStreaming, rvLiveStreaming;
+
+    LiveItemAdapter liveItemAdapter;
+    private SavedChanelManager chanelManager;
+    private ProgressBar pbLoading;
+    private SavedChanelManager savedChanel;
+    private List<LiveItemModel> customItems = new ArrayList<>();
 
     private static String TAG ="Main Activity >>";
+    public static final String LOG_TAG = ">>>>>>>>>";
 
     //For remote
     private NsdManager mNsdManager;
@@ -95,6 +115,16 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     private WifiManager wifi;
     private  int id_menu=0;
+
+    String device_token="";
+
+    PageIndicatorView pageIndicatorView;
+    ViewPager viewPager;
+    private static int currentPage = 0;
+    private static int NUM_PAGES = 0;
+    private static final Integer[] IMAGES= {R.drawable.iklan,R.drawable.iklan2,R.drawable.iklan3,R.drawable.iklan4};
+    private ArrayList<Integer> ImagesArray = new ArrayList<Integer>();
+    private int count_slider= 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,12 +136,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         imgLogo = findViewById(R.id.img_logo);
 
         llHome = findViewById(R.id.ll_home);
-        llStreaming = findViewById(R.id.ll_streaming);
         llLiveStreaming = findViewById(R.id.ll_live_streaming);
+        llStreaming = findViewById(R.id.ll_streaming);
 
-        llHome.setVisibility(View.VISIBLE);
-        llStreaming.setVisibility(View.INVISIBLE);
-        llLiveStreaming.setVisibility(View.INVISIBLE);
+        viewPager = findViewById(R.id.pager);
+        pageIndicatorView = findViewById(R.id.pageIndicatorView);
+
+        sessionManager = new SessionManager(MainActivity.this);
 
         if (Build.VERSION.SDK_INT >= 21) {
             mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
@@ -145,15 +176,163 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         rvitemKategoriStreaming.setItemAnimator(new DefaultItemAnimator());
         rvitemKategoriStreaming.setAdapter(itemStreamingAdapter);
 
-        // load menu
-        getMenuWithConnection();
-        // load menu kategori streaming
-        initKategoriStreaming();
-        initItemTVStreaming();
+        /// live streaming
+        rvLiveStreaming = findViewById(R.id.rv_item_live_streaming);
+        pbLoading = (ProgressBar) findViewById(R.id.pb_loading);
+        chanelManager = new SavedChanelManager(MainActivity.this);
+        savedChanel = new SavedChanelManager(MainActivity.this);
+        savedC = 0;
+        ServiceUtils.lockedClient = "";
+        wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        if (Build.VERSION.SDK_INT >= 21) {
+            mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+            registerService(ServiceUtils.DEFAULT_PORT);
+            initializeReceiver();
+        }
+        liveItemAdapter = new LiveItemAdapter(this, customItems);
+        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, 4);
+        rvLiveStreaming.setLayoutManager(gridLayoutManager);
+        rvLiveStreaming.addItemDecoration(new GridSpacingItemDecoration(4, dpToPx(10), true));
+        rvLiveStreaming.setItemAnimator(new DefaultItemAnimator());
+        rvLiveStreaming.setAdapter(liveItemAdapter);
+
+        llHome.setVisibility(View.VISIBLE);
+        llLiveStreaming.setVisibility(View.INVISIBLE);
+        llStreaming.setVisibility(View.INVISIBLE);
+
         kategoriStreamingAdapter.selectedPosition = savedC;
         itemStreamingAdapter.selectedPosition = savedC;
 
+        // load menu
+        getMenuWithConnection();
 
+        sliderHomeAdapter = new SliderHomeAdapter(this, sliderModels);
+        initDataSlider();
+        initSlider();
+
+        ItemAdapter.selectedPosition =-1;
+
+    }
+
+    // ===================================== SET FCM ID ================================
+    private void fcmId() throws JSONException {
+        JSONObject jBody = new JSONObject();
+        jBody.put("fcm_id",device_token);
+        new ApiVolley(this, jBody, "post", ServerURL.post_fcmid,
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                    }
+                    @Override
+                    public void onEmpty(String message) {
+                    }
+                    @Override
+                    public void onFail(String message) {
+                        Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
+
+    }
+
+    // ===================================== Get Data Slider ================================
+    private void initSlider() {
+//        for(int i=0;i<IMAGES.length;i++) {
+//            ImagesArray.add(IMAGES[i]);
+//        }
+
+        viewPager.setAdapter(sliderHomeAdapter);
+
+        pageIndicatorView.setViewPager(viewPager);
+
+        final float density = getResources().getDisplayMetrics().density;
+
+        pageIndicatorView.setRadius(5 * density);
+
+        NUM_PAGES = sessionManager.getCountSlider();
+//        Toast.makeText(MainActivity.this, "Slider "+sessionManager.getCountSlider(), Toast.LENGTH_SHORT).show();
+
+        // Auto start of viewpager
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == NUM_PAGES) {
+                    currentPage = 0;
+                }
+                viewPager.setCurrentItem(currentPage++, true);
+            }
+        };
+        Timer swipeTimer = new Timer();
+        swipeTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 2000, 3000);
+
+        // Pager listener over indicator
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+            @Override
+            public void onPageSelected(int position) {
+                currentPage = position;
+                pageIndicatorView.setSelection(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {/*empty*/}
+        });
+    }
+
+    private void initDataSlider() {
+        JSONObject jBody = new JSONObject();
+        count_slider =0;
+
+        Log.d(LOG_TAG,sessionManager.getFcmid());
+
+        new ApiVolley(this, jBody, "GET", ServerURL.get_slider,
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                        sliderModels.clear();
+                        try{
+                            JSONArray obj = new JSONArray(response);
+//                            count_slider = obj.length();
+                            sessionManager.saveCountSlider(obj.length());
+                            for(int i = 0; i < obj.length(); i++){
+                                JSONObject d = obj.getJSONObject(i);
+                                SliderModel s = new SliderModel(
+                                        d.getString("id")
+                                        ,d.getString("image")
+                                        ,d.getString("url")
+                                );
+                                sliderModels.add(s);
+                            }
+                            sliderHomeAdapter.notifyDataSetChanged();
+                        }
+                        catch (JSONException e){
+                            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void onEmpty(String message) {
+
+                        sliderModels.clear();
+                        sliderHomeAdapter.notifyDataSetChanged();
+
+                    }
+
+                    @Override
+                    public void onFail(String message) {
+                        Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
     }
 
     // ===================================== Get Menu Utama ================================
@@ -179,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
                 @Override
                 public void onComplete(boolean connected) {
-                    if(connected){
+                    if (connected) {
 
                         runOnUiThread(new Runnable() {
                             @Override
@@ -187,14 +366,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                                 initDatasetMenu();
                             }
                         });
-                    }else{
+                    } else {
                         Snackbar.make(findViewById(android.R.id.content), R.string.wifi_not_connected,
                                 Snackbar.LENGTH_INDEFINITE).setAction("OK",
                                 new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        if (wifi.isWifiEnabled() == false)
-                                        {
+                                        if (wifi.isWifiEnabled() == false) {
                                             wifi.setWifiEnabled(true);
                                         }
                                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
@@ -212,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private void initKategoriStreaming() {
         JSONObject jBody = new JSONObject();
 
-        new ApiVolley(this, jBody, "GET", Url.getKategori,
+        new ApiVolley(this, jBody, "GET", ServerURL.get_kategori_streaming,
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
                     @Override
                     public void onSuccess(String response, String message) {
@@ -260,14 +438,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             e.printStackTrace();
         }
 
-        new ApiVolley(this, jBody, "POST", Url.getItemTV,
+        new ApiVolley(this, jBody, "POST", ServerURL.get_konten_streaming,
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
                     @Override
                     public void onSuccess(String response, String message) {
                         itemModelTvStreaming.clear();
                         try{
                             JSONArray obj = new JSONArray(response);
-                            Log.d(LOG_TAG,">>>>"+obj);
                             for(int i = 0; i < obj.length(); i++){
                                 JSONObject jadwal = obj.getJSONObject(i);
                                 ItemModel m = new ItemModel(
@@ -345,20 +522,118 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     }
 
 
+    // ===================================== Get Konten Live Streaming ================================
+
+//    private void getKontenLiveStreaming() {
+//        ConnectivityManager connectivityManager
+//                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+//        //return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+//
+//        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+//            new InternetCheck(MainActivity.this).isInternetConnectionAvailable(new InternetCheck.InternetCheckListener() {
+//
+//                @Override
+//                public void onComplete(boolean connected) {
+//                    if(connected){
+//
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                getListChannel();
+//                            }
+//                        });
+//                    }else{
+//                        Snackbar.make(findViewById(android.R.id.content), R.string.wifi_not_connected,
+//                                Snackbar.LENGTH_INDEFINITE).setAction("OK",
+//                                new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        if (wifi.isWifiEnabled() == false)
+//                                        {
+//                                            wifi.setWifiEnabled(true);
+//                                        }
+//                                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+//                                    }
+//                                }).show();
+//                    }
+//                }
+//            });
+//        } else {
+//            Log.d("conect error", "No network available!");
+//        }
+//    }
+
+    private void getListChannel() {
+
+        JSONObject jbody = new JSONObject();
+
+        try {
+            jbody.put("fcm_id", sessionManager.getFcmid());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new ApiVolley(this, jbody, "POST", ServerURL.get_channel,
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                        customItems.clear();
+                        try{
+                            JSONArray obj = new JSONArray(response);
+                            for(int i = 0; i < obj.length(); i++){
+                                JSONObject j = obj.getJSONObject(i);
+                                LiveItemModel m = new LiveItemModel(
+                                        j.getString("id"),
+                                        j.getString("nama"),
+                                        j.getString("link"),
+                                        j.getString("icon")
+                                );
+                                customItems.add(m);
+                            }
+                            liveItemAdapter.notifyDataSetChanged();
+                        }
+                        catch (JSONException e){
+                            Toast.makeText(getApplicationContext(), "Error item", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onEmpty(String message) {
+
+                        customItems.clear();
+                        liveItemAdapter.notifyDataSetChanged();
+
+                    }
+
+                    @Override
+                    public void onFail(String message) {
+                        Toast.makeText(getApplicationContext(), "Failed item Live Streaming", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
+    }
+
     // ===================================== Interface Menu Adapter ================================
     @Override
     public void loadContent(int id) {
         switch (id){
             case 1:
                 llHome.setVisibility(View.VISIBLE);
+                llLiveStreaming.setVisibility(View.INVISIBLE);
                 llStreaming.setVisibility(View.INVISIBLE);
+                initDataSlider();
                 break;
             case 2:
-                Toast.makeText(this, "Live streaming", Toast.LENGTH_SHORT).show();
+                llHome.setVisibility(View.INVISIBLE);
+                llLiveStreaming.setVisibility(View.VISIBLE);
+                llStreaming.setVisibility(View.INVISIBLE);
+                getListChannel();
                 break;
             case 3:
                 llHome.setVisibility(View.INVISIBLE);
+                llLiveStreaming.setVisibility(View.INVISIBLE);
                 llStreaming.setVisibility(View.VISIBLE);
+                initKategoriStreaming();
+                initItemTVStreaming();
                 break;
         }
     }
@@ -379,13 +654,21 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-//        if(state_layar == 1){
-//            state_layar=1;
-//        }else if(state_layar == 2){
-//            state_layar =1;
-//        }else if(state_layar == 3) {
-//            state_layar = 2;
-//        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==2)
+        {
+            llHome.setVisibility(View.INVISIBLE);
+            llLiveStreaming.setVisibility(View.VISIBLE);
+            llStreaming.setVisibility(View.INVISIBLE);
+        }else{
+            llHome.setVisibility(View.VISIBLE);
+            llLiveStreaming.setVisibility(View.INVISIBLE);
+            llStreaming.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -393,20 +676,20 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
         int maxleng_itemtv_streaming = (itemModelTvStreaming != null) ? itemModelTvStreaming.size() : 0;
+        int maxleng_live_streaming = (customItems != null) ? customItems.size() : 0;
         MenuModel item = menuModels.get(AdapterMenuUtama.selectedPosition);
         KategoriModel menu_streaming = itemKategoriStreaming.get(KategoriAdapter.selectedPosition);
         switch (keyCode){
             case 4:
-                Toast.makeText(this, "back", Toast.LENGTH_SHORT).show();
-                if(state_layar == 1){
-                    state_layar=1;
-                }else if(state_layar == 2){
+                if(state_layar == 2){
                     state_layar =1;
                 }else if(state_layar == 3) {
+                    if(id_menu == 3){
+                        ItemAdapter.selectedPosition = -1;
+                    }
                     state_layar = 2;
                 }
                 return false;
-//                break;
             case 19:
                 // tombol atas
                 if(state_layar == 1){
@@ -424,6 +707,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             KategoriAdapter a = (KategoriAdapter) rvKategoriStreaming.getAdapter();
                             a.notifyDataSetChanged();
                             rvKategoriStreaming.smoothScrollToPosition(KategoriAdapter.selectedPosition);
+                        }
+                    }else if(id_menu ==2){
+                        if(LiveItemAdapter.selectedPosition - 4 >= 0){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 4;
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
                         }
                     }
                 }else if(state_layar == 3){
@@ -456,6 +746,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             adapter.notifyDataSetChanged();
                             rvKategoriStreaming.smoothScrollToPosition(KategoriAdapter.selectedPosition);
                         }
+                    }else if(id_menu ==2) {
+                        if(LiveItemAdapter.selectedPosition + 4 < maxleng_live_streaming){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 4;
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
+                        }
                     }
                 }else if(state_layar==3){
                     if(id_menu ==3){
@@ -481,6 +778,17 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             }
                         }
                     }
+                }else if(state_layar == 2){
+                    if(id_menu ==2) {
+                        if (LiveItemAdapter.selectedPosition - 1 >= 0) {
+                            if (LiveItemAdapter.selectedPosition - 1 >= 0) {
+                                LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 1;
+                                LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                                adapter.notifyDataSetChanged();
+                                rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
+                            }
+                        }
+                    }
                 }
                 break;
             case 22:
@@ -491,6 +799,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
                         adapter.notifyDataSetChanged();
                         rvitemKategoriStreaming.smoothScrollToPosition(ItemAdapter.selectedPosition);
+                    }
+                }else  if(state_layar == 2){
+                    if(id_menu == 2) {
+                        if (LiveItemAdapter.selectedPosition + 1 < maxleng_live_streaming) {
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 1;
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
+                        }
                     }
                 }
                 break;
@@ -510,6 +827,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         llLiveStreaming.setVisibility(View.VISIBLE);
                         llStreaming.setVisibility(View.INVISIBLE);
                     }else if(id_menu == 3){
+                        ItemAdapter.selectedPosition =-1;
+                        ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
+                        adapter.notifyDataSetChanged();
                         llHome.setVisibility(View.INVISIBLE);
                         llLiveStreaming.setVisibility(View.INVISIBLE);
                         llStreaming.setVisibility(View.VISIBLE);
@@ -519,9 +839,17 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 else if(state_layar == 2){
                     switch (id_menu){
                         case 2:
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            Intent intent = new Intent(MainActivity.this, LiveViewActivity.class);
+                            intent.putExtra("nama", model.getNama());
+                            intent.putExtra("link", model.getLink());
+//                            startActivity(intent);
+                            startActivityForResult(intent, 2);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                             break;
                         case 3:
                             state_layar =3;
+                            ItemAdapter.selectedPosition =-1;
                             onClickKategoriStreaming(menu_streaming.getId());
                             break;
                     }
@@ -530,6 +858,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     final List<String> installedPackages = Utils.getInstalledAppsPackageNameList(MainActivity.this);
                     switch (id_menu){
                         case 3:
+//                            ItemAdapter.selectedPosition=0;
                             ItemModel m = itemModelTvStreaming.get(ItemAdapter.selectedPosition);
                             if(installedPackages.contains(m.getM_package())){
                                 Intent launchIntent = MainActivity.this.getPackageManager().getLaunchIntentForPackage(m.getM_package());
@@ -879,6 +1208,26 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     @Override
     protected void onResume() {
         super.onResume();
+        getListChannel();
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                device_token = instanceIdResult.getToken();
+                sessionManager.saveFcmId(device_token);
+                try {
+                    fcmId();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+//        initSlider();
+        // load menu kategori streaming
+        initKategoriStreaming();
+        initItemTVStreaming();
+        // load slider
+//        initDataSlider();
         if (Build.VERSION.SDK_INT >= 21) {
             if (mNsdManager != null) {
                 registerService(ServiceUtils.DEFAULT_PORT);

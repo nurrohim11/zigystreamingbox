@@ -1,2 +1,2 @@
-include ':app', ':custommodul', ':coremodul'
+include ':app', ':custommodul', ':coremodul', ':ViewPagerIndicator-Library'
 rootProject.name='zigistreamingbox'

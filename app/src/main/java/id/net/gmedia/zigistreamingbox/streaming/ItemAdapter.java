@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +26,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>  {
 
     private Context mContext;
     private List<ItemModel> musicModels;
-    public static int selectedPosition =0;
+    public static int selectedPosition =-1;
 
     public ItemAdapter(Context mContext, List<ItemModel> musicModels) {
         this.mContext = mContext;
@@ -41,7 +43,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>  {
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final List<String> installedPackages = Utils.getInstalledAppsPackageNameList(mContext);
         final ItemModel m= musicModels.get(position);
-
         Glide.with(mContext)
                 .load(m.getUrl())
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -50,14 +51,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>  {
                 .centerCrop()
                 .transform(new RoundedCornersTransformation(30,0))
                 .into(holder.imgMusic);
+        Glide.with(mContext)
+                .load(m.getUrl())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.placeholder)
+                .override(400, 400)
+                .centerCrop()
+                .transform(new RoundedCornersTransformation(30,0))
+                .into(holder.imgBigMusic);
         holder.tvTitle.setText(m.getTitle());
+        holder.imgBigMusic.setVisibility(View.INVISIBLE);
+        holder.imgMusic.setVisibility(View.VISIBLE);
 
         if(selectedPosition==position) {
-            holder.imgMusic.setBackgroundResource(R.drawable.circle);
+            holder.llKonten.setBackgroundResource(R.drawable.item_selected);
             holder.tvTitle.setTextColor(Color.parseColor("#FFD700"));
+            holder.imgBigMusic.setVisibility(View.VISIBLE);
+            holder.imgMusic.setVisibility(View.INVISIBLE);
         }else{
-            holder.imgMusic.setBackgroundResource(0);
+            holder.llKonten.setBackgroundResource(0);
             holder.tvTitle.setTextColor(Color.parseColor("#FFFFFF"));
+            holder.imgBigMusic.setVisibility(View.INVISIBLE);
+            holder.imgMusic.setVisibility(View.VISIBLE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -102,13 +117,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>  {
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imgMusic;
+        ImageView imgMusic, imgBigMusic;
         TextView tvTitle;
+        RelativeLayout rlImage;
+        LinearLayout llKonten;
 
         public ViewHolder(View itemView) {
             super(itemView);
             imgMusic = itemView.findViewById(R.id.img_usic);
             tvTitle = itemView.findViewById(R.id.tv_title);
+            rlImage =itemView.findViewById(R.id.rl_image);
+            llKonten = itemView.findViewById(R.id.ll_konten);
+            imgBigMusic = itemView.findViewById(R.id.img_bg_usic);
         }
     }
 }
