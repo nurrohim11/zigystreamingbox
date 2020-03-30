@@ -200,6 +200,8 @@ public class LiveViewActivity extends AppCompatActivity {
         tvUser.setTextColor(getResources().getColor(R.color.color_text_marquee));
         tvUser.startScroll();
 
+        tvUser.setVisibility(View.INVISIBLE);
+
         sessionManager = new SessionManager(LiveViewActivity.this);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -625,9 +627,15 @@ public class LiveViewActivity extends AppCompatActivity {
 
                 break;
             case 4:
-                Intent intent=new Intent();
-                setResult(2,intent);
-                finish();//finishing activity
+
+                Intent intent = new Intent(LiveViewActivity.this, MainActivity.class);
+                intent.putExtra("back",true);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+//                Intent intent=new Intent();
+//                setResult(2,intent);
+//                finish();//finishing activity
                 break;
             case 7:
                 selectChannel("0");
@@ -1079,7 +1087,9 @@ public class LiveViewActivity extends AppCompatActivity {
                             setTimerAppearText(iv.parseNullInteger(duration));
 
                         }
-
+                        tvUser.setVisibility(View.VISIBLE);
+                    }else{
+                        tvUser.setVisibility(View.GONE);
                     }
 
                 } catch (JSONException e) {
@@ -1300,6 +1310,8 @@ public class LiveViewActivity extends AppCompatActivity {
         JSONObject jbody = new JSONObject();
 
         try {
+            jbody.put("type","all");
+            jbody.put("kategori","");
             jbody.put("fcm_id", sessionManager.getFcmid());
         } catch (JSONException e) {
             e.printStackTrace();

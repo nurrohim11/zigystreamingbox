@@ -64,7 +64,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_marginTop="@dimen/default_vertical_margin"
-                android:id="@+id/rv_chanel"></androidx.recyclerview.widget.RecyclerView>
+                android:id="@+id/rv_chanel"/>
 
             <LinearLayout
                 android:layout_width="0dp"

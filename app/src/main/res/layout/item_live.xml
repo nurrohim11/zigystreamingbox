@@ -17,12 +17,12 @@
             android:id="@+id/img_usic"
             android:layout_width="match_parent"
             android:layout_centerInParent="true"
-            android:layout_height="@dimen/_60sdp"/>
+            android:layout_height="@dimen/_50sdp"/>
         <ImageView
             android:id="@+id/img_bg_usic"
             android:layout_width="match_parent"
             android:layout_centerInParent="true"
-            android:layout_height="@dimen/_65sdp"/>
+            android:layout_height="@dimen/_55sdp"/>
     </RelativeLayout>
 
     <TextView

@@ -27,7 +27,7 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
 
     private Context mContext;
     private List<LiveItemModel> customItems;
-    public static int selectedPosition =0;
+    public static int selectedPosition =-1;
 
     public LiveItemAdapter(Context mContext, List<LiveItemModel> musicModels) {
         this.mContext = mContext;

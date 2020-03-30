@@ -33,7 +33,8 @@ public class SessionManager {
     public static final String TAG_KONTAK = "kontak";
     public static final String TAG_ID = "id_record";
     public static final String TAG_FCMID ="fcm_id";
-    public static final String TAG_COUNT_SLIDER = "0";
+    public static final String TAG_COUNT_SLIDER = "count_slider";
+    public static final String TAG_KATEGORI = "kategori";
 
     // Constructor
     public SessionManager(Context context){
@@ -76,6 +77,14 @@ public class SessionManager {
         editor.putString(TAG_FOTO, foto);
 
         editor.putString(TAG_KONTAK, kontak);
+
+        // commit changes
+        editor.commit();
+    }
+
+    public void saveKategoriLiveStreaming(String id_kategori){
+
+        editor.putString(TAG_KATEGORI, id_kategori);
 
         // commit changes
         editor.commit();
@@ -152,6 +161,10 @@ public class SessionManager {
 
     public int getCountSlider(){
         return pref.getInt(TAG_COUNT_SLIDER, 0);
+    }
+
+    public String getKategoriLiveStreaming(){
+        return pref.getString(TAG_KATEGORI, "");
     }
 
     /**
