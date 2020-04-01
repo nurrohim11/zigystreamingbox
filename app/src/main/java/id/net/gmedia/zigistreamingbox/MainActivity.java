@@ -19,15 +19,15 @@ import android.net.Uri;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.text.Layout;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -37,8 +37,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -64,8 +62,10 @@ import java.util.TimerTask;
 
 import co.id.gmedia.coremodul.ApiVolley;
 import co.id.gmedia.coremodul.AppRequestCallback;
+import co.id.gmedia.coremodul.CustomModel;
 import co.id.gmedia.coremodul.ItemValidation;
 import co.id.gmedia.coremodul.SessionManager;
+import id.net.gmedia.zigistreamingbox.RemoteUtils.SelectedServer;
 import id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils;
 import id.net.gmedia.zigistreamingbox.adapter.SliderHomeAdapter;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
@@ -82,6 +82,9 @@ import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
 import id.net.gmedia.zigistreamingbox.utils.Utils;
 
+import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_NAME;
+import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_TYPE;
+
 
 public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.MenuAdapterCallback, KategoriAdapter.KategoriAdapterCallback, KategoriChannelAdapter.KategoriAdapterCallback {
 
@@ -92,12 +95,14 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private LinearLayout llHome, llStreaming, llLiveStreaming, llFcmId;
     private List<MenuModel> menuModels = new ArrayList<>();
     private List<SliderModel> sliderModels = new ArrayList<>();
+    private List<CustomModel> masterList = new ArrayList<>();
     public SliderHomeAdapter sliderHomeAdapter;
     private ItemValidation iv = new ItemValidation();
     private AdapterMenuUtama mAdapter;
     private int savedC = 0;
     private int saveLive = 0;
     private int state_layar = 1;
+    private NsdManager mNsdManager;
 
     public static List<KategoriModel> itemKategoriStreaming = new ArrayList<>();
     public List<ItemModel> itemModelTvStreaming = new ArrayList<>();
@@ -120,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     public static final String LOG_TAG = ">>>>>>>>>";
 
     //For remote
-    private NsdManager mNsdManager;
+    private NsdManager mNsdManagerRemote;
     private ServerSocket serverSocket;
     private SocketServerThread socketServerThread;
 
@@ -143,10 +148,18 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     int selectedItemLiveStreaming= 0;
     AudioManager audioManager;
 
+    private InetAddress hostAddress;
+    private int hostPort;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(isNetworkAvailable()){
+            initializeRegistrationListener();
+        }
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -165,9 +178,14 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         sessionManager = new SessionManager(MainActivity.this);
 
+        ServiceUtils.lockedClient = "";
+        wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (Build.VERSION.SDK_INT >= 21) {
             mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+            mNsdManager.discoverServices(SERVICE_TYPE,
+                    NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
             registerService(ServiceUtils.DEFAULT_PORT);
+            // NSD Stuff
             initializeReceiver();
         }
 
@@ -206,13 +224,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         chanelManager = new SavedChanelManager(MainActivity.this);
         savedChanel = new SavedChanelManager(MainActivity.this);
         savedC = 0;
-        ServiceUtils.lockedClient = "";
-        wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (Build.VERSION.SDK_INT >= 21) {
-            mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
-            registerService(ServiceUtils.DEFAULT_PORT);
-            initializeReceiver();
-        }
+
         liveItemAdapter = new LiveItemAdapter(this, customItems);
         RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, 4);
         rvLiveStreaming.setLayoutManager(gridLayoutManager);
@@ -897,6 +909,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         }
                     }else if(id_menu == 2){
                         if(LiveItemAdapter.selectedPosition + 1 < maxleng_live_streaming){
+                            LiveItemModel m = customItems.get(LiveItemAdapter.selectedPosition);
                             LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 1;
                             LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                             adapter.notifyDataSetChanged();
@@ -1080,8 +1093,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         @Override
         public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
             String mServiceName = NsdServiceInfo.getServiceName();
-            ServiceUtils.SERVICE_NAME = mServiceName;
-            Log.d(TAG, "Registered name : " + mServiceName);
+            SERVICE_NAME = mServiceName;
+            Log.d(TAG, "Registered name : " + NsdServiceInfo.getPort());
         }
 
         @Override
@@ -1111,8 +1124,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     public void registerService(int port) {
         NsdServiceInfo serviceInfo = new NsdServiceInfo();
-        serviceInfo.setServiceName(ServiceUtils.SERVICE_NAME);
-        serviceInfo.setServiceType(ServiceUtils.SERVICE_TYPE);
+        serviceInfo.setServiceName(SERVICE_NAME);
+        serviceInfo.setServiceType(SERVICE_TYPE);
 
         try {
             serviceInfo.setHost(InetAddress.getByName(getMyIPAddress(true)));
@@ -1126,6 +1139,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             mNsdManager.registerService(serviceInfo,
                     NsdManager.PROTOCOL_DNS_SD,
                     mRegistrationListener);
+            mNsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -1193,6 +1207,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     try {
                         jsondata = new JSONObject(messageFromClient);
                         request = jsondata.getString("request");
+                        Log.d(">>>>>",request);
 
                         if (request.equals(ServiceUtils.REQUEST_CODE)) {
 
@@ -1297,6 +1312,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         if (mNsdManager != null) {
             try{
                 mNsdManager.unregisterService(mRegistrationListener);
+                mNsdManager.stopServiceDiscovery(mDiscoveryListener);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -1373,6 +1389,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         if (Build.VERSION.SDK_INT >= 21) {
             if (mNsdManager != null) {
                 registerService(ServiceUtils.DEFAULT_PORT);
+
             }
 
             initializeReceiver();
@@ -1385,6 +1402,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         if (mNsdManager != null) {
             try{
                 mNsdManager.unregisterService(mRegistrationListener);
+                mNsdManager.stopServiceDiscovery(mDiscoveryListener);
             }catch (Exception e){
 
                 e.printStackTrace();
@@ -1401,6 +1419,269 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         super.onDestroy();
     }
+
+
+    private void connectToRemote(String id, String link) {
+
+        try {
+            hostAddress = InetAddress.getByName(SelectedServer.host);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        hostPort = iv.parseNullInteger(SelectedServer.port);
+
+        if (hostAddress == null) {
+            Log.e(TAG, "Host Address is null");
+            return;
+        }
+
+        String ipAddress = getMyIPAddress(true);
+        JSONObject jsonData = new JSONObject();
+
+        try {
+            jsonData.put("request", ServiceUtils.REQUEST_CODE);
+            jsonData.put("ipAddress", ipAddress);
+            jsonData.put("id", id);
+            jsonData.put("link", link);
+            jsonData.put("type", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(TAG, "can't put request");
+            return;
+        }
+
+        new SocketServerTask().execute(jsonData);
+    }
+
+    private class SocketServerTask extends AsyncTask<JSONObject, Void, Void> {
+        private JSONObject jsonData;
+        private boolean success;
+
+        @Override
+        protected Void doInBackground(JSONObject... params) {
+            Socket socket = null;
+            DataInputStream dataInputStream = null;
+            DataOutputStream dataOutputStream = null;
+            jsonData = params[0];
+
+            try {
+
+                // Create a new Socket instance and connect to host
+                try {
+                    socket = new Socket(SelectedServer.host, hostPort);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                dataOutputStream = new DataOutputStream(
+                        socket.getOutputStream());
+                dataInputStream = new DataInputStream(socket.getInputStream());
+
+                // transfer JSONObject as String to the server
+                dataOutputStream.writeUTF(jsonData.toString());
+                Log.i(TAG, "waiting for response from host");
+
+                // Thread will wait till server replies
+                String response = dataInputStream.readUTF();
+                if (response != null && response.equals("Connection Accepted")) {
+                    success = true;
+                } else {
+                    success = false;
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                success = false;
+            } finally {
+
+                // close socket
+                if (socket != null) {
+                    try {
+                        Log.i(TAG, "closing the socket");
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // close input stream
+                if (dataInputStream != null) {
+                    try {
+                        dataInputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // close output stream
+                if (dataOutputStream != null) {
+                    try {
+                        dataOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (success) {
+                //Toast.makeText(ClientActivity.this, "Connection Done", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "success remote: "+ result);
+            } else {
+                Log.d(TAG, "failed remote: "+ result);
+                //Toast.makeText(ClientActivity.this, "Unable to connect", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        boolean have_WIFI= false;
+        boolean have_MobileData = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
+        for(NetworkInfo info:networkInfos){
+            if (info.getTypeName().equalsIgnoreCase("WIFI"))if (info.isConnected())have_WIFI=true;
+            if (info.getTypeName().equalsIgnoreCase("MOBILE DATA"))if (info.isConnected())have_MobileData=true;
+        }
+        return have_WIFI||have_MobileData;
+    }
+
+
+    NsdManager.DiscoveryListener mDiscoveryListener = new NsdManager.DiscoveryListener() {
+
+        // Called as soon as service discovery begins.
+        @Override
+        public void onDiscoveryStarted(String regType) {
+            Log.d(TAG, "Service discovery started");
+        }
+
+        @Override
+        public void onServiceFound(NsdServiceInfo service) {
+            // A service was found! Do something with it.
+            Log.d(TAG, "Service discovery success : " + service);
+            Log.d(TAG, "Host = "+ service.getServiceName());
+            Log.d(TAG, "port = " + String.valueOf(service.getPort()));
+
+            if (!service.getServiceType().equals(SERVICE_TYPE)) {
+                // Service type is the string containing the protocol and
+                // transport layer for this service.
+                Log.d(TAG, "Unknown Service Type: " + service.getServiceType());
+            } else if (service.getServiceName().equals(SERVICE_NAME)) {
+                // The name of the service tells the user what they'd be
+                // connecting to. It could be "Bob's Chat App".
+                Log.d(TAG, "Same machine: " + SERVICE_NAME);
+            } else {
+                Log.d(TAG, "Diff Machine : " + service.getServiceName());
+                // connect to the service and obtain serviceInfo
+            }
+            try {
+                mNsdManager.resolveService(service, mResolveListener);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceLost(NsdServiceInfo service) {
+            // When the network service is no longer available.
+            // Internal bookkeeping code goes here.
+            Log.e(TAG, "service lost" + service);
+        }
+
+        @Override
+        public void onDiscoveryStopped(String serviceType) {
+            Log.i(TAG, "Discovery stopped: " + serviceType);
+        }
+
+        @Override
+        public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+            Log.e(TAG, "Discovery failed: Error code:" + errorCode);
+            mNsdManager.stopServiceDiscovery(this);
+        }
+
+        @Override
+        public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+            Log.e(TAG, "Discovery failed: Error code:" + errorCode);
+            mNsdManager.stopServiceDiscovery(this);
+        }
+    };
+
+    NsdManager.ResolveListener mResolveListener = new NsdManager.ResolveListener() {
+
+        @Override
+        public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+            // Called when the resolve fails. Use the error code to debug.
+            Log.e(TAG, "Resolve failed " + errorCode);
+            Log.e(TAG, "Resolve service = " + serviceInfo);
+        }
+
+        @Override
+        public void onServiceResolved(NsdServiceInfo serviceInfo) {
+            Log.d(TAG, "Resolve Succeeded. " + serviceInfo);
+
+            if (serviceInfo.getServiceName().equals(SERVICE_NAME)) {
+                Log.d(TAG, serviceInfo.getHost().getHostAddress());
+                SelectedServer.host = serviceInfo.getHost().getHostAddress();
+                SelectedServer.name = serviceInfo.getServiceName();
+                SelectedServer.port = String.valueOf(serviceInfo.getPort());
+                SelectedServer.type = serviceInfo.getServiceType();
+
+                return;
+            }
+
+            // Obtain port and IP
+            hostPort = serviceInfo.getPort();
+            hostAddress = serviceInfo.getHost();
+        }
+    };
+
+    public void initializeRegistrationListener() {
+
+//        NsdManager.ResolveListener mResolveListener = new NsdManager.ResolveListener() {
+//            @Override
+//            public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
+//                Log.e(TAG, "Resolve failed " + errorCode);
+//            }
+//
+//            @Override
+//            public void onServiceResolved(NsdServiceInfo serviceInfo) {
+//                Log.v(TAG, "Resolve Succeeded. " + serviceInfo);
+//            }
+//        };
+//        mRegistrationListener = new NsdManager.RegistrationListener() {
+//
+//            @Override
+//            public void onServiceRegistered(NsdServiceInfo nsdServiceInfo) {
+//                WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//                String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+//
+//                Log.d(TAG,">>>"+ip);
+//                Log.d(TAG,">>>"+nsdServiceInfo.getServiceName());
+//                Log.d(TAG,">>>"+nsdServiceInfo.getPort());
+//                Log.d(TAG,">>>"+nsdServiceInfo.getServiceType());
+//            }
+//
+//            @Override
+//            public void onRegistrationFailed(NsdServiceInfo arg0, int arg1) {
+//                Log.d(TAG, "Service registration failed: " + arg1);
+//            }
+//
+//            @Override
+//            public void onServiceUnregistered(NsdServiceInfo arg0) {
+//                Log.d(TAG, "Service unregistered: " + arg0.getServiceName());
+//            }
+//
+//            @Override
+//            public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+//                Log.d(TAG, "Service unregistration failed: " + errorCode);
+//            }
+//
+//        };
+    }
+
 
 
 }
