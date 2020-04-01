@@ -84,6 +84,7 @@ import id.net.gmedia.zigistreamingbox.utils.Utils;
 
 
 public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.MenuAdapterCallback, KategoriAdapter.KategoriAdapterCallback, KategoriChannelAdapter.KategoriAdapterCallback {
+
     RecyclerView rvMenu;
     LinearLayout llMenu;
     ImageView imgLogo;
