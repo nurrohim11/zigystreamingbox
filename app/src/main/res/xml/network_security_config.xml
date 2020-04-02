@@ -3,5 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">gmedia.bz</domain>
         <domain includeSubdomains="true">erpsmg.gmedia.id</domain>
+        <domain includeSubdomains="true">stream1.zigy.net</domain>
+        <domain includeSubdomains="true">stream2.zigy.net</domain>
     </domain-config>
 </network-security-config>

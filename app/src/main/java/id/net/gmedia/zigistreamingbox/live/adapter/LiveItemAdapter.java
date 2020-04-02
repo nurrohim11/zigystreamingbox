@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
+import id.net.gmedia.zigistreamingbox.MainActivity;
 import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
@@ -60,6 +62,12 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
         holder.tvTitle.setText(m.getNama());
 
         if(selectedPosition==position) {
+            if(selectedPosition ==0){
+                LiveItemModel mi= customItems.get(0);
+                MainActivity.TAG_LINK = mi.getLink();
+            }else{
+                MainActivity.TAG_LINK = m.getLink();
+            }
             holder.llKonten.setBackgroundResource(R.drawable.item_selected);
             holder.tvTitle.setTextColor(Color.parseColor("#FFD700"));
             holder.imgBigMusic.setVisibility(View.VISIBLE);

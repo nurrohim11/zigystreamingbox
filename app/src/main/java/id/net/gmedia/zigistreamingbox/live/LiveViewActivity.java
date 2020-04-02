@@ -336,7 +336,7 @@ public class LiveViewActivity extends AppCompatActivity {
 
 
     public static void playVideo(final Context context, final String nama, final String url){
-
+        MainActivity.TAG_LINK = url;
         itemOnSelect = false;
         tapped = true;
         showNavigationItem(context);

@@ -151,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private InetAddress hostAddress;
     private int hostPort;
 
+    public static String TAG_LINK ="";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -180,14 +182,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         ServiceUtils.lockedClient = "";
         wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (Build.VERSION.SDK_INT >= 21) {
-            mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
-            mNsdManager.discoverServices(SERVICE_TYPE,
-                    NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
-            registerService(ServiceUtils.DEFAULT_PORT);
-            // NSD Stuff
-            initializeReceiver();
-        }
 
         initIdKategoriFirst();
 
@@ -755,6 +749,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         MenuModel item = menuModels.get(AdapterMenuUtama.selectedPosition);
         KategoriModel menu_streaming = itemKategoriStreaming.get(KategoriAdapter.selectedPosition);
         KategoriChannelModel menu_live_streaming= kategoriChannelModel.get(KategoriChannelAdapter.selectedPosition);
+        TAG_LINK ="";
+//        Toast.makeText(this, TAG_LINK, Toast.LENGTH_SHORT).show();
         switch (keyCode){
             case 4:
 //                if(requestCodeLiveStreaming == 2){
@@ -814,6 +810,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         }
                     }else if(id_menu ==2){
                         if(LiveItemAdapter.selectedPosition - 4 >= 0){
+
+                            LiveItemModel m = customItems.get(LiveItemAdapter.selectedPosition);
                             LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 4;
                             LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                             adapter.notifyDataSetChanged();
@@ -856,6 +854,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             rvitemKategoriStreaming.smoothScrollToPosition(ItemAdapter.selectedPosition);
                         }
                     }else if(id_menu == 2){
+                        LiveItemModel m = customItems.get(LiveItemAdapter.selectedPosition);
 //                        Toast.makeText(this, "cekk", Toast.LENGTH_SHORT).show();
                         if(LiveItemAdapter.selectedPosition + 4 < maxleng_live_streaming){
                             LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 4;
@@ -888,6 +887,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     if(id_menu ==2) {
                         if (LiveItemAdapter.selectedPosition - 1 >= 0) {
                             if (LiveItemAdapter.selectedPosition - 1 >= 0) {
+                                LiveItemModel m = customItems.get(LiveItemAdapter.selectedPosition);
                                 LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 1;
                                 LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                                 adapter.notifyDataSetChanged();
@@ -968,6 +968,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     switch (id_menu){
                         case 2:
                             state_layar = 3;
+                            LiveItemModel m = customItems.get(0);
+                            TAG_LINK = m.getLink();
                             LiveItemAdapter.selectedPosition =0;
                             onClickKategoriLiveStreaming(menu_live_streaming.getId());
                             break;
@@ -1247,11 +1249,20 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                                     String keyCode = jsondata.getString("keyCode");
                                     Log.d(TAG, "ip Client: " +clientIPAddress);
                                     // Add client IP to a list
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("status",String.valueOf(1));
+                                    jsonObject.put("link",TAG_LINK);
+
+                                    Log.d(">>>>",String.valueOf(jsonObject));
+
                                     getAction(iv.parseNullInteger(keyCode));
-                                    messageToClient = "Connection Accepted";
+                                    messageToClient = jsonObject.toString();
                                     dataOutputStream.writeUTF(messageToClient);
                                 }else{
-                                    messageToClient = "Connection Rejected ip not registered";
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("status",String.valueOf(0));
+                                    jsonObject.put("link",TAG_LINK);
+                                    messageToClient =  jsonObject.toString();
                                     dataOutputStream.writeUTF(messageToClient);
                                 }
                             }
@@ -1360,6 +1371,16 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            mNsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+            mNsdManager.discoverServices(SERVICE_TYPE,
+                    NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
+            registerService(ServiceUtils.DEFAULT_PORT);
+            // NSD Stuff
+            initializeReceiver();
+        }
+
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {
@@ -1418,123 +1439,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         }
 
         super.onDestroy();
-    }
-
-
-    private void connectToRemote(String id, String link) {
-
-        try {
-            hostAddress = InetAddress.getByName(SelectedServer.host);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        hostPort = iv.parseNullInteger(SelectedServer.port);
-
-        if (hostAddress == null) {
-            Log.e(TAG, "Host Address is null");
-            return;
-        }
-
-        String ipAddress = getMyIPAddress(true);
-        JSONObject jsonData = new JSONObject();
-
-        try {
-            jsonData.put("request", ServiceUtils.REQUEST_CODE);
-            jsonData.put("ipAddress", ipAddress);
-            jsonData.put("id", id);
-            jsonData.put("link", link);
-            jsonData.put("type", "");
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG, "can't put request");
-            return;
-        }
-
-        new SocketServerTask().execute(jsonData);
-    }
-
-    private class SocketServerTask extends AsyncTask<JSONObject, Void, Void> {
-        private JSONObject jsonData;
-        private boolean success;
-
-        @Override
-        protected Void doInBackground(JSONObject... params) {
-            Socket socket = null;
-            DataInputStream dataInputStream = null;
-            DataOutputStream dataOutputStream = null;
-            jsonData = params[0];
-
-            try {
-
-                // Create a new Socket instance and connect to host
-                try {
-                    socket = new Socket(SelectedServer.host, hostPort);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                dataOutputStream = new DataOutputStream(
-                        socket.getOutputStream());
-                dataInputStream = new DataInputStream(socket.getInputStream());
-
-                // transfer JSONObject as String to the server
-                dataOutputStream.writeUTF(jsonData.toString());
-                Log.i(TAG, "waiting for response from host");
-
-                // Thread will wait till server replies
-                String response = dataInputStream.readUTF();
-                if (response != null && response.equals("Connection Accepted")) {
-                    success = true;
-                } else {
-                    success = false;
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                success = false;
-            } finally {
-
-                // close socket
-                if (socket != null) {
-                    try {
-                        Log.i(TAG, "closing the socket");
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // close input stream
-                if (dataInputStream != null) {
-                    try {
-                        dataInputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // close output stream
-                if (dataOutputStream != null) {
-                    try {
-                        dataOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            if (success) {
-                //Toast.makeText(ClientActivity.this, "Connection Done", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "success remote: "+ result);
-            } else {
-                Log.d(TAG, "failed remote: "+ result);
-                //Toast.makeText(ClientActivity.this, "Unable to connect", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     private boolean isNetworkAvailable() {
