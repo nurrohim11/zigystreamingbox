@@ -400,12 +400,12 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private void initDatasetMenu(){
         MenuModel m = new MenuModel(1,"Beranda", "001");
         menuModels.add(m);
-        m = new MenuModel(2,"Live Streaming", "002");
+        m = new MenuModel(2,"TV Streaming", "002");
         menuModels.add(m);
         m = new MenuModel(3,"Streaming", "003");
         menuModels.add(m);
-        m = new MenuModel(4,"Fcm Id","006");
-        menuModels.add(m);
+//        m = new MenuModel(4,"Fcm Id","006");
+//        menuModels.add(m);
 //        AdapterMenuUtama.selectedPosition = savedC;
         mAdapter.notifyDataSetChanged();
     }
@@ -764,12 +764,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 if(state_layar == 2){
                     state_layar =1;
                 }else if(state_layar == 3) {
+                    state_layar = 2;
                     if(id_menu == 3){
                         ItemAdapter.selectedPosition = -1;
                     }else if(id_menu ==2){
-                        LiveItemAdapter.selectedPosition=-1;
+                        Toast.makeText(MainActivity.this, "back", Toast.LENGTH_SHORT).show();
+                        LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                        LiveItemAdapter.selectedPosition =-1;
+                        adapter.notifyDataSetChanged();
                     }
-                    state_layar = 2;
                 }
 //                Toast.makeText(this, "state "+state_layar, Toast.LENGTH_SHORT).show();
 //                }
@@ -968,8 +971,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     switch (id_menu){
                         case 2:
                             state_layar = 3;
-                            LiveItemModel m = customItems.get(0);
-                            TAG_LINK = m.getLink();
+//                            LiveItemModel m = customItems.get(0);
+//                            TAG_LINK = m.getLink();
                             LiveItemAdapter.selectedPosition =0;
                             onClickKategoriLiveStreaming(menu_live_streaming.getId());
                             break;
