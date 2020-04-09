@@ -208,18 +208,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             initializeRegistrationListener();
         }
 
-        // TODO handling bundle
-        bundles=  getIntent().getExtras();
-        Log.d(">>>>>", String.valueOf(bundles));
-        if(bundles != null){
-            boolean bool = bundles.getBoolean("back");
-            if(bundles.getBoolean("back")){
-                setBack = true;
-            }else{
-                setBack = false;
-            }
-        }
-
         if(sessionManager.getKategoriLiveStreaming().equals("0"))
             type_kategori_live="all";
         else
@@ -316,6 +304,20 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 //        LiveItemAdapter.selectedPosition =-1;
 
 
+        // TODO handling bundle
+        bundles=  getIntent().getExtras();
+        Log.d(">>>>>", String.valueOf(bundles));
+        if(bundles != null){
+            boolean bool = bundles.getBoolean("back");
+            if(bundles.getBoolean("back")){
+                setBack = true;
+            }else{
+                setBack = false;
+            }
+        }else{
+            AdapterMenuUtama.selectedPosition=0;
+        }
+
         Log.d(">>>>>", String.valueOf(setBack));
         if(setBack){
             llLiveStreaming.setVisibility(View.VISIBLE);
@@ -331,7 +333,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             llStreaming.setVisibility(View.INVISIBLE);
             llFcmId.setVisibility(View.INVISIBLE);
         }
-//        queue = Volley.newRequestQueue(MainActivity.this);
 
     }
 
@@ -819,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Toast.makeText(this, String.valueOf(keyCode), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, String.valueOf(keyCode)+"keydown", Toast.LENGTH_SHORT).show();
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
         int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
@@ -1096,14 +1097,14 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     switch (id_menu){
                         case 2:
                             if(menu_live_streaming.getId().equals("0")){
-                                isChannel = false;
+//                                isChannel = false;
                                 state_layar = 3;
                                 sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
                                 LiveItemAdapter.selectedPosition =0;
                                 type_kategori_live="all";
                                 getListChannel("remote");
                             }else{
-                                isChannel = false;
+//                                isChannel = false;
                                 state_layar = 3;
                                 sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
                                 LiveItemAdapter.selectedPosition =0;
@@ -1177,25 +1178,30 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     }
                 }
                 break;
-            case 24:
-                audioManager.adjustStreamVolume(
-                        AudioManager.STREAM_MUSIC,
-                        AudioManager.ADJUST_RAISE,
-                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-                link_tv=TAG_EMPTY;
-                break;
-            case 25 :
-                audioManager.adjustStreamVolume(
-                        AudioManager.STREAM_MUSIC,
-                        AudioManager.ADJUST_LOWER,
-                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
-                link_tv=TAG_EMPTY;
-                break;
-
+//            case 24:
+//                audioManager.adjustStreamVolume(
+//                        AudioManager.STREAM_MUSIC,
+//                        AudioManager.ADJUST_RAISE,
+//                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                link_tv=TAG_EMPTY;
+//                break;
+//            case 25 :
+//                audioManager.adjustStreamVolume(
+//                        AudioManager.STREAM_MUSIC,
+//                        AudioManager.ADJUST_LOWER,
+//                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                link_tv=TAG_EMPTY;
+//                break;
+//
         }
         return super.onKeyDown(keyCode, event);
     }
-
+//
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        Toast.makeText(this, String.valueOf(keyCode)+"keyup", Toast.LENGTH_SHORT).show();
+//        return super.onKeyUp(keyCode, event);
+//    }
 
     // ===================================== Beautify Grid ================================
 
