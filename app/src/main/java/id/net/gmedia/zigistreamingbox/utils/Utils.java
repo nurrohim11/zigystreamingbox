@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
+    public static String TAG_EMPTY = "empty";
     public static boolean isPackageInstalled(String packageName, PackageManager packageManager) {
         try {
             return packageManager.getApplicationInfo(packageName, 0).enabled;

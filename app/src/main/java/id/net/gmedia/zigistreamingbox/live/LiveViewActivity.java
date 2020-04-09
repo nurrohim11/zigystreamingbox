@@ -336,7 +336,7 @@ public class LiveViewActivity extends AppCompatActivity {
 
 
     public static void playVideo(final Context context, final String nama, final String url){
-        MainActivity.TAG_LINK = url;
+//        MainActivity.TAG_LINK = url;
         itemOnSelect = false;
         tapped = true;
         showNavigationItem(context);
@@ -627,15 +627,18 @@ public class LiveViewActivity extends AppCompatActivity {
 
                 break;
             case 4:
-
-                Intent intent = new Intent(LiveViewActivity.this, MainActivity.class);
-                intent.putExtra("back",true);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-//                Intent intent=new Intent();
-//                setResult(2,intent);
-//                finish();//finishing activity
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent(LiveViewActivity.this, MainActivity.class);
+                        Bundle b = new Bundle();
+                        b.putBoolean("back",true);
+                        intent.putExtras(b);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
                 break;
             case 7:
                 selectChannel("0");
@@ -1121,7 +1124,7 @@ public class LiveViewActivity extends AppCompatActivity {
                         String linkLogo = response.getJSONObject("response").getString("link");
                         if(linkLogo.length() > 0){
                             ImageUtils iu = new ImageUtils();
-                            iu.LoadGIFImage(LiveViewActivity.this, linkLogo, ivLogoTV, R.mipmap.ic_launcher);
+                            iu.LoadGIFImage(LiveViewActivity.this, linkLogo, ivLogoTV, R.drawable.fiberstream);
                         }
 
                     }

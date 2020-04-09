@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
+import co.id.gmedia.coremodul.ApiVolley;
+import co.id.gmedia.coremodul.AppRequestCallback;
 import id.net.gmedia.zigistreamingbox.MainActivity;
 import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
+import id.net.gmedia.zigistreamingbox.utils.Url;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHolder>  {
@@ -62,12 +69,7 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
         holder.tvTitle.setText(m.getNama());
 
         if(selectedPosition==position) {
-            if(selectedPosition ==0){
-                LiveItemModel mi= customItems.get(0);
-                MainActivity.TAG_LINK = mi.getLink();
-            }else{
-                MainActivity.TAG_LINK = m.getLink();
-            }
+            LiveItemAdapter.sendData(MainActivity.fcm_client,m.getLink(),mContext);
             holder.llKonten.setBackgroundResource(R.drawable.item_selected);
             holder.tvTitle.setTextColor(Color.parseColor("#FFD700"));
             holder.imgBigMusic.setVisibility(View.VISIBLE);
@@ -90,6 +92,7 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
                 intent.putExtra("nama", m.getNama());
                 intent.putExtra("link", m.getLink());
                 mContext.startActivity(intent);
+//                ((Activity) mContext).startActivityForResult(intent,2);
                 ((Activity)mContext).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
@@ -114,4 +117,34 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
             imgBigMusic = itemView.findViewById(R.id.img_bg_usic);
         }
     }
+
+
+    public static void sendData(String fcm_client, String link_tv, Context context){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("to",fcm_client);
+            JSONObject obj1 = new JSONObject();
+            obj1.put("jenis",link_tv);
+            obj1.put("title","fiber");
+            jsonObject.put("data",obj1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d(">>>>>>", String.valueOf(jsonObject));
+        new ApiVolley(context, jsonObject, "POST", Url.base_url_fcm,"1",
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                    }
+                    @Override
+                    public void onEmpty(String message) {
+                    }
+
+                    @Override
+                    public void onFail(String message) {
+                    }
+                })
+        );
+    }
+
 }

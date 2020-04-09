@@ -18,10 +18,6 @@ public class AppRequestCallback implements ApiVolley.VolleyCallback {
 
     @Override
     public void onSuccess(String result) {
-        if(LOG){
-            Log.d(TAG, result);
-        }
-
         try {
             JSONObject jsonresult = new JSONObject(result);
             int status = jsonresult.getJSONObject("metadata").getInt("status");

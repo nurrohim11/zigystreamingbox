@@ -1,6 +1,7 @@
 package id.net.gmedia.zigistreamingbox;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.TypedValue;
@@ -48,19 +49,12 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
         holder.imgLeft.setVisibility(View.INVISIBLE);
         holder.tvTitle.setTypeface(holder.tvTitle.getTypeface(), Typeface.NORMAL);
 
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            holder.tvTitle.setAutoSizeTextTypeUniformWithConfiguration(
-//                    1, 17, 1, TypedValue.COMPLEX_UNIT_DIP);
-//        }
-
         holder.tvTitle.setText(menuModel.getMenu());
         if(selectedPosition==position) {
             holder.imgLeft.setVisibility(View.VISIBLE);
-//            holder.tvTitle.setTypeface(holder.tvTitle.getTypeface(), Typeface.BOLD_ITALIC);
-//            Toast.makeText(context, "selected", Toast.LENGTH_SHORT).show();
+            holder.tvTitle.setTextColor(Color.parseColor("#FFFFFF"));
         }else {
-//            holder.tvTitle.setTypeface(holder.tvTitle.getTypeface(), Typeface.NORMAL);
+            holder.tvTitle.setTextColor(Color.parseColor("#AEAEAE"));
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
