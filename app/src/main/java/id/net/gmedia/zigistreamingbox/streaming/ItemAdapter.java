@@ -3,6 +3,7 @@ package id.net.gmedia.zigistreamingbox.streaming;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -59,6 +61,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>  {
                 .centerCrop()
                 .transform(new RoundedCornersTransformation(30,0))
                 .into(holder.imgBigMusic);
+
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.montserrat_medium);
+        holder.tvTitle.setTypeface(typeface);
         holder.tvTitle.setText(m.getTitle());
         holder.imgBigMusic.setVisibility(View.INVISIBLE);
         holder.imgMusic.setVisibility(View.VISIBLE);

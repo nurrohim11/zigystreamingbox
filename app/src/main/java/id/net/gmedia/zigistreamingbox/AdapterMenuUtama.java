@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
@@ -39,7 +40,6 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
     public AdapterMenuUtama.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.adapter_menu_utama, parent, false);
-
         return new ViewHolder(itemView);
     }
 
@@ -47,6 +47,10 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         final MenuModel menuModel = menuModels.get(position);
         holder.imgLeft.setVisibility(View.INVISIBLE);
+
+        Typeface typeface = ResourcesCompat.getFont(context, R.font.montserrat_medium);
+        holder.tvTitle.setTypeface(typeface);
+
         holder.tvTitle.setTypeface(holder.tvTitle.getTypeface(), Typeface.NORMAL);
 
         holder.tvTitle.setText(menuModel.getMenu());

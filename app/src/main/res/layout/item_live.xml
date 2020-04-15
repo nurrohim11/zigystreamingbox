@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:text="Title"
         android:textColor="#fff"
-        android:textSize="@dimen/_10sdp"
+        android:textSize="@dimen/_8sdp"
         android:maxLines="1"
         android:gravity="center_horizontal"/>
 </LinearLayout>

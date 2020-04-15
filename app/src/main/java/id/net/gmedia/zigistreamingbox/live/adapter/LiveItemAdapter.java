@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -67,7 +69,8 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
                 .transform(new RoundedCornersTransformation(30,0))
                 .into(holder.imgBigMusic);
         holder.tvTitle.setText(m.getNama());
-
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.montserrat_medium);
+        holder.tvTitle.setTypeface(typeface);
         if(selectedPosition==position) {
             LiveItemAdapter.sendData(MainActivity.fcm_client,m.getLink(),mContext);
             holder.llKonten.setBackgroundResource(R.drawable.item_selected);

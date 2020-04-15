@@ -52,11 +52,8 @@ public class SliderHomeAdapter extends PagerAdapter {
 
         Glide.with(context)
                 .load(s.getUrl())
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.placeholder)
-                .override(400, 400)
                 .centerCrop()
-                .transform(new RoundedCornersTransformation(30,0))
                 .into(imageView);
 
         view.addView(imageLayout, 0);

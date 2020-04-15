@@ -2,6 +2,7 @@ package id.net.gmedia.zigistreamingbox.streaming;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import id.net.gmedia.zigistreamingbox.R;
@@ -40,6 +42,8 @@ public class KategoriAdapter extends RecyclerView.Adapter<KategoriAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull final KategoriAdapter.ViewHolder holder, final int position) {
         final String[] kat = {kategoriModels.get(0).getId()};
+        Typeface typeface = ResourcesCompat.getFont(context, R.font.montserrat_medium);
+        holder.tv_kategori.setTypeface(typeface);
         holder.tv_kategori.setText(kategoriModels.get(position).getNama());
         if(selectedPosition==position) {
             holder.tv_kategori.setTextColor(Color.WHITE);

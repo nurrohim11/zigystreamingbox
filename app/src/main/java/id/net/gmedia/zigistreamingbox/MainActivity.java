@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(MainActivity.this);
 
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // TODO mencari network untuk remote
         if(isNetworkAvailable()){
@@ -408,8 +408,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private void initDataSlider() {
         JSONObject jBody = new JSONObject();
         count_slider =0;
-
-//        Log.d(LOG_TAG,sessionManager.getFcmid());
 
         new ApiVolley(this, jBody, "GET", ServerURL.get_slider,
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
@@ -820,7 +818,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Toast.makeText(this, String.valueOf(keyCode)+"keydown", Toast.LENGTH_SHORT).show();
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
         int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
@@ -1639,6 +1636,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 device_token = instanceIdResult.getToken();
                 sessionManager.saveFcmId(device_token);
+                Log.d(TAG,device_token);
                 try {
                     fcmId();
                 } catch (JSONException e) {

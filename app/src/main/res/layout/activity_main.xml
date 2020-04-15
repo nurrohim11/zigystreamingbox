@@ -95,11 +95,13 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/_8sdp"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:textSize="@dimen/_7sdp"
                     android:id="@+id/tv_search_live"
                     android:textColor="#fff"
                     android:paddingStart="15dp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/montserrat_medium"
                     android:text="Streaming Konten"/>
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
@@ -146,11 +148,13 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/_8sdp"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:textSize="@dimen/_7sdp"
                     android:id="@+id/tv_search"
                     android:textColor="#fff"
                     android:paddingStart="15dp"
                     android:textStyle="bold"
+                    android:fontFamily="@font/montserrat_medium"
                     android:text="Streaming Konten"/>
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
