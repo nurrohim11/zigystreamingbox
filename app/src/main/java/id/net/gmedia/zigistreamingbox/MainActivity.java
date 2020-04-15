@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             public void run() {
                 handler.post(Update);
             }
-        }, 2000, 3000);
+        }, 6000, 4000);
 
         // Pager listener over indicator
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -820,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Toast.makeText(this, String.valueOf(keyCode)+"keydown", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, String.valueOf(keyCode)+"keydown", Toast.LENGTH_SHORT).show();
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
         int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
@@ -1053,6 +1053,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 //                    sendData(fcm_client);
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     if(id_menu == 1){
+                        initDataSlider();
+                        initSlider();
                         state_layar=1;
                         llHome.setVisibility(View.VISIBLE);
                         llLiveStreaming.setVisibility(View.INVISIBLE);
