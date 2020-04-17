@@ -35,10 +35,16 @@
 
             </intent-filter>
         </activity>
+        <receiver android:enabled="true" android:name=".utils.BootUpReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
 
-        <receiver android:name=".utils.CustomReciever">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.REBOOT"/>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN"/>
+                <action android:name="android.intent.action.SCREEN_OFF"/>
             </intent-filter>
         </receiver>
 

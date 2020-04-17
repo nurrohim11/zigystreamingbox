@@ -3,23 +3,16 @@ package id.net.gmedia.zigistreamingbox;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.ViewHolder> {
@@ -39,7 +32,7 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
     @Override
     public AdapterMenuUtama.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.adapter_menu_utama, parent, false);
+                .inflate(R.layout.list_menu_utama, parent, false);
         return new ViewHolder(itemView);
     }
 

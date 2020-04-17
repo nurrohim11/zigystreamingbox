@@ -62,7 +62,7 @@ public class ListChannelIconAdapter extends RecyclerView.Adapter<ListChannelIcon
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.adapter_chanel_icon, parent, false);
+                .inflate(R.layout.list_channel, parent, false);
 
         return new MyViewHolder(itemView);
     }

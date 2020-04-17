@@ -21,6 +21,11 @@ public class ServerURL {
     public static String get_advertisement = base_url+"master/advertisement";
     public static String get_appear_text = base_url+"master/appear_text";
 
+    public static final  String getKategori= base_url+"api/item/kategori_item/";
+    public static final String url_profile_device = base_url+"authentication/profile_device";
+    public static final  String getItemTV= base_url+"api/item/item_tv/";
+    public static final  String base_url_fcm= "https://fcm.googleapis.com/fcm/send";
+
     public static String baseUrl = "http://gmediatv.gmedia.bz/";
 //    public static String baseUrl = "http://192.168.20.72/project/gmedia_tv/";
 

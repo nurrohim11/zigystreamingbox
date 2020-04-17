@@ -63,6 +63,7 @@ import java.util.TimerTask;
 
 import co.id.gmedia.coremodul.ApiVolley;
 import co.id.gmedia.coremodul.ApkInstaller;
+import co.id.gmedia.coremodul.AppRequestCallback;
 import co.id.gmedia.coremodul.ImageUtils;
 import co.id.gmedia.coremodul.ItemValidation;
 import co.id.gmedia.coremodul.SessionManager;
@@ -77,6 +78,7 @@ import id.net.gmedia.zigistreamingbox.utils.FormatItem;
 import id.net.gmedia.zigistreamingbox.utils.InternetCheck;
 import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
+import id.net.gmedia.zigistreamingbox.utils.Url;
 
 public class LiveViewActivity extends AppCompatActivity {
 
@@ -626,53 +628,44 @@ public class LiveViewActivity extends AppCompatActivity {
 
                 break;
             case 4:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent intent = new Intent(LiveViewActivity.this, MainActivity.class);
-                        Bundle b = new Bundle();
-                        b.putBoolean("back",true);
-                        intent.putExtras(b);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+                onBackPressed();
                 break;
-            case 7:
-                selectChannel("0");
-                break;
-            case 8:
-                selectChannel("1");
-                break;
-            case 9:
-                selectChannel("2");
-                break;
-            case 10:
-                selectChannel("3");
-                break;
-            case 11:
-                selectChannel("4");
-                break;
-            case 12:
-                selectChannel("5");
-                break;
-            case 13:
-                selectChannel("6");
-                break;
-            case 14:
-                selectChannel("7");
-                break;
-            case 15:
-                selectChannel("8");
-                break;
-            case 16:
-                selectChannel("9");
-                break;
+//            case 7:
+//                selectChannel("0");
+//                break;
+//            case 8:
+//                selectChannel("1");
+//                break;
+//            case 9:
+//                selectChannel("2");
+//                break;
+//            case 10:
+//                selectChannel("3");
+//                break;
+//            case 11:
+//                selectChannel("4");
+//                break;
+//            case 12:
+//                selectChannel("5");
+//                break;
+//            case 13:
+//                selectChannel("6");
+//                break;
+//            case 14:
+//                selectChannel("7");
+//                break;
+//            case 15:
+//                selectChannel("8");
+//                break;
+//            case 16:
+//                selectChannel("9");
+//                break;
             case 32:
-
                 tapped = true;
                 showNavigationItem(LiveViewActivity.this);
+                break;
+            case  61:
+                getDevice();
                 break;
         }
         return super.onKeyDown(keyCode, event);
@@ -874,7 +867,6 @@ public class LiveViewActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         if(rvListVideoContainer.getVisibility() == View.VISIBLE){
             runOnUiThread(new Runnable() {
                 @Override
@@ -911,6 +903,9 @@ public class LiveViewActivity extends AppCompatActivity {
             }
             //super.onBackPressed();
             Intent intent = new Intent(LiveViewActivity.this, MainActivity.class);
+            Bundle b = new Bundle();
+            b.putBoolean("back",true);
+            intent.putExtras(b);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
@@ -1123,7 +1118,7 @@ public class LiveViewActivity extends AppCompatActivity {
                         String linkLogo = response.getJSONObject("response").getString("link");
                         if(linkLogo.length() > 0){
                             ImageUtils iu = new ImageUtils();
-                            iu.LoadGIFImage(LiveViewActivity.this, linkLogo, ivLogoTV, R.drawable.fiberstream);
+                            iu.LoadGIFImage(LiveViewActivity.this, linkLogo, ivLogoTV, R.drawable.ic_logo_fiberstar2);
                         }
 
                     }
@@ -1380,6 +1375,35 @@ public class LiveViewActivity extends AppCompatActivity {
             menuAdapter.notifyDataSetChanged();
             rvChannel.smoothScrollToPosition(saved);
         }
+    }
+
+
+    private void getDevice(){
+        JSONObject jbody = new JSONObject();
+
+        new ApiVolley(LiveViewActivity.this, jbody, "POST", ServerURL.url_profile_device,
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                        try{
+                            JSONObject res = new JSONObject(response);
+                            Toast.makeText(LiveViewActivity.this, "Device id "+res.getString("id_device"), Toast.LENGTH_SHORT).show();
+                        }
+                        catch (JSONException e){
+                            Toast.makeText(LiveViewActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onEmpty(String message) {
+                        Toast.makeText(LiveViewActivity.this, "Maaf device anda belum terdaftar", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFail(String message) {
+                        Toast.makeText(LiveViewActivity.this, "Terjadi kesalahan data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
     }
 
 
@@ -1660,7 +1684,6 @@ public class LiveViewActivity extends AppCompatActivity {
             }
         }
     }
-
     private void getAction(final int keyCode){
 
         runOnUiThread(new Runnable() {

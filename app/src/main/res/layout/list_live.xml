@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/_2sdp"
     android:orientation="vertical"
-    android:background="#1BFFFFFF"
+    android:background="#FFF"
     android:id="@+id/ll_konten"
     android:gravity="center">
 
@@ -17,12 +17,12 @@
             android:id="@+id/img_usic"
             android:layout_width="match_parent"
             android:layout_centerInParent="true"
-            android:layout_height="@dimen/_50sdp"/>
+            android:layout_height="@dimen/_60sdp"/>
         <ImageView
             android:id="@+id/img_bg_usic"
             android:layout_width="match_parent"
             android:layout_centerInParent="true"
-            android:layout_height="@dimen/_55sdp"/>
+            android:layout_height="@dimen/_65sdp"/>
     </RelativeLayout>
 
     <TextView

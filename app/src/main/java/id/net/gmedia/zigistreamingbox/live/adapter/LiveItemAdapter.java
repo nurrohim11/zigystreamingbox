@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +30,7 @@ import id.net.gmedia.zigistreamingbox.MainActivity;
 import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
+import id.net.gmedia.zigistreamingbox.utils.ServerURL;
 import id.net.gmedia.zigistreamingbox.utils.Url;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
@@ -47,7 +47,7 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_live, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_live, parent, false);
         return new ViewHolder(view);
     }
 
@@ -134,7 +134,7 @@ public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHo
             e.printStackTrace();
         }
         Log.d(">>>>>>", String.valueOf(jsonObject));
-        new ApiVolley(context, jsonObject, "POST", Url.base_url_fcm,"1",
+        new ApiVolley(context, jsonObject, "POST", ServerURL.base_url_fcm,"1",
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
                     @Override
                     public void onSuccess(String response, String message) {

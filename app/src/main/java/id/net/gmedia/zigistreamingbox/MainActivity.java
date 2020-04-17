@@ -44,6 +44,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -110,6 +112,7 @@ import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
 import id.net.gmedia.zigistreamingbox.utils.Url;
 import id.net.gmedia.zigistreamingbox.utils.Utils;
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_NAME;
 import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_TYPE;
@@ -147,9 +150,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     private SavedChanelManager savedChanel;
     private List<LiveItemModel> customItems = new ArrayList<>();
 
-    KategoriChannelAdapter kategoriChannelAdapter;
-    List<KategoriChannelModel> kategoriChannelModel = new ArrayList<>();
-    RecyclerView rvKategoriLiveStreaming;
+//    List<KategoriChannelModel> kategoriChannelModel = new ArrayList<>();
+//    RecyclerView rvKategoriLiveStreaming;
+//    KategoriChannelAdapter kategoriChannelAdapter;
 
     private static String TAG ="MainActivity>>";
     public static final String LOG_TAG = ">>>>>>>>>";
@@ -262,26 +265,26 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         // == ========= ==inisialisasi kontent menu live streaming == ========= ==
         rvLiveStreaming = findViewById(R.id.rv_item_live_streaming);
-        rvKategoriLiveStreaming = findViewById(R.id.rv_kategori_live_streaming);
-        pbLoading = (ProgressBar) findViewById(R.id.pb_loading);
-        chanelManager = new SavedChanelManager(MainActivity.this);
-        savedChanel = new SavedChanelManager(MainActivity.this);
-        savedC = 0;
+//        rvKategoriLiveStreaming = findViewById(R.id.rv_kategori_live_streaming);
+//        pbLoading = (ProgressBar) findViewById(R.id.pb_loading);
+//        chanelManager = new SavedChanelManager(MainActivity.this);
+//        savedChanel = new SavedChanelManager(MainActivity.this);
+//        savedC = 0;
+//        kategoriChannelAdapter = new KategoriChannelAdapter(this, kategoriChannelModel ,this);
+//        GridLayoutManager layoutManagerKategoriLive = new GridLayoutManager(this,1);
+//        layoutManagerKategoriLive.setOrientation(LinearLayoutManager.VERTICAL);
+//        rvKategoriLiveStreaming.setLayoutManager(layoutManagerKategoriLive);
+//        rvKategoriLiveStreaming.setItemAnimator(new DefaultItemAnimator());
+//        rvKategoriLiveStreaming.setAdapter(kategoriChannelAdapter);
+//        initKategoriLiveStreaming();
 
         liveItemAdapter = new LiveItemAdapter(this, customItems);
-        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, 4);
+        RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
         rvLiveStreaming.setLayoutManager(gridLayoutManager);
-        rvLiveStreaming.addItemDecoration(new GridSpacingItemDecoration(4, dpToPx(10), true));
+        rvLiveStreaming.addItemDecoration(new GridSpacingItemDecoration(5, dpToPx(10), true));
         rvLiveStreaming.setItemAnimator(new DefaultItemAnimator());
         rvLiveStreaming.setAdapter(liveItemAdapter);
 
-        kategoriChannelAdapter = new KategoriChannelAdapter(this, kategoriChannelModel ,this);
-        GridLayoutManager layoutManagerKategoriLive = new GridLayoutManager(this,1);
-        layoutManagerKategoriLive.setOrientation(LinearLayoutManager.VERTICAL);
-        rvKategoriLiveStreaming.setLayoutManager(layoutManagerKategoriLive);
-        rvKategoriLiveStreaming.setItemAnimator(new DefaultItemAnimator());
-        rvKategoriLiveStreaming.setAdapter(kategoriChannelAdapter);
-        initKategoriLiveStreaming();
 
         llHome.setVisibility(View.INVISIBLE);
         llLiveStreaming.setVisibility(View.INVISIBLE);
@@ -326,14 +329,23 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             llFcmId.setVisibility(View.INVISIBLE);
             AdapterMenuUtama.selectedPosition=1;
             id_menu = 2;
-            state_layar =3;
+            state_layar =2;
         }else{
             llHome.setVisibility(View.VISIBLE);
             llLiveStreaming.setVisibility(View.INVISIBLE);
             llStreaming.setVisibility(View.INVISIBLE);
             llFcmId.setVisibility(View.INVISIBLE);
         }
+        initUi();
+    }
 
+    private void initUi(){
+
+//        Glide.with(MainActivity.this)
+//                .load(R.drawable.ic_logo_fb)
+//                .placeholder(R.drawable.ic_logo_fb)
+//                .centerCrop()
+//                .into(imgLogo);
     }
 
     // ===================================== SET FCM ID ================================
@@ -609,8 +621,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         JSONObject jbody = new JSONObject();
 
         try {
-            jbody.put("type",type_kategori_live);
-            jbody.put("kategori", sessionManager.getKategoriLiveStreaming());
+            jbody.put("type","all");
+            jbody.put("kategori", "");
             jbody.put("fcm_id", sessionManager.getFcmid());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -672,7 +684,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         sessionManager.saveKategoriLiveStreaming(res.getString("id_kat"));
                     }
                     catch (JSONException e){
-//                        Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -682,60 +693,57 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
                 @Override
                 public void onFail(String message) {
-//                    Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
                 }
             })
         );
     }
 
-    private void initKategoriLiveStreaming() {
-        JSONObject jBody = new JSONObject();
-
-        new ApiVolley(this, jBody, "GET", ServerURL.get_kategori_channel,
-                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
-                    @Override
-                    public void onSuccess(String response, String message) {
-                        kategoriChannelModel.clear();
-                        KategoriChannelModel k_all;
-                        try{
-                            // TODO menambah kategori all
-                            k_all = new KategoriChannelModel("0","All");
-                            kategoriChannelModel.add(k_all);
-
-                            JSONArray obj = new JSONArray(response);
-                            Log.d(TAG,">>>>"+obj);
-                            for(int i = 0; i < obj.length(); i++){
-                                KategoriChannelModel k;
-                                JSONObject jadwal = obj.getJSONObject(i);
-                                k = new KategoriChannelModel(
-                                        jadwal.getString("id")
-                                        ,jadwal.getString("kategori")
-                                );
-                                kategoriChannelModel.add(k);
-                            }
-                            kategoriChannelAdapter.notifyDataSetChanged();
-                        }
-                        catch (JSONException e){
-//                            Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onEmpty(String message) {
-
-                        kategoriChannelModel.clear();
-                        kategoriChannelAdapter.notifyDataSetChanged();
-
-                    }
-
-                    @Override
-                    public void onFail(String message) {
-//                        Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
-                    }
-                })
-        );
-    }
+//    private void initKategoriLiveStreaming() {
+//        JSONObject jBody = new JSONObject();
+//
+//        new ApiVolley(this, jBody, "GET", ServerURL.get_kategori_channel,
+//                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+//                    @Override
+//                    public void onSuccess(String response, String message) {
+//                        kategoriChannelModel.clear();
+//                        KategoriChannelModel k_all;
+//                        try{
+//                            // TODO menambah kategori all
+//                            k_all = new KategoriChannelModel("0","All");
+//                            kategoriChannelModel.add(k_all);
+//
+//                            JSONArray obj = new JSONArray(response);
+//                            Log.d(TAG,">>>>"+obj);
+//                            for(int i = 0; i < obj.length(); i++){
+//                                KategoriChannelModel k;
+//                                JSONObject jadwal = obj.getJSONObject(i);
+//                                k = new KategoriChannelModel(
+//                                        jadwal.getString("id")
+//                                        ,jadwal.getString("kategori")
+//                                );
+//                                kategoriChannelModel.add(k);
+//                            }
+//                            kategoriChannelAdapter.notifyDataSetChanged();
+//                        }
+//                        catch (JSONException e){
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onEmpty(String message) {
+//
+//                        kategoriChannelModel.clear();
+//                        kategoriChannelAdapter.notifyDataSetChanged();
+//
+//                    }
+//
+//                    @Override
+//                    public void onFail(String message) {
+//                    }
+//                })
+//        );
+//    }
 
     @Override
     public void onRowKategoriLiveCallback(String id_kategori) {
@@ -818,9 +826,10 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        Toast.makeText(this, String.valueOf(keyCode), Toast.LENGTH_SHORT).show();
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
-        int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
+//        int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
         int maxleng_itemtv_streaming = (itemModelTvStreaming != null) ? itemModelTvStreaming.size() : 0;
         int maxleng_live_streaming = (customItems != null) ? customItems.size() : 0;
         MenuModel item = menuModels.get(AdapterMenuUtama.selectedPosition);
@@ -832,14 +841,18 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             menu_streaming = itemKategoriStreaming.get(KategoriAdapter.selectedPosition);
         }
 
-        KategoriChannelModel menu_live_streaming;
-        if(KategoriChannelAdapter.selectedPosition == -1){
-            menu_live_streaming= kategoriChannelModel.get(0);
-        }else{
-            menu_live_streaming= kategoriChannelModel.get(KategoriChannelAdapter.selectedPosition);
-        }
+//        KategoriChannelModel menu_live_streaming;
+//        if(KategoriChannelAdapter.selectedPosition == -1){
+//            menu_live_streaming= kategoriChannelModel.get(0);
+//        }else{
+//            menu_live_streaming= kategoriChannelModel.get(KategoriChannelAdapter.selectedPosition);
+//        }
+
         TAG_LINK ="";
         switch (keyCode){
+            case 0:
+                Toast.makeText(this, "home", Toast.LENGTH_SHORT).show();
+                break;
             case 4:
                 link_tv =TAG_EMPTY;
                 if(state_layar == 2){
@@ -852,14 +865,19 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         adapter.notifyDataSetChanged();
                         type_kategori_streaming="";
                     }else if(id_menu ==2){
-                        KategoriChannelAdapter.selectedPosition = -1;
-                        KategoriChannelAdapter a = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+                        LiveItemAdapter.selectedPosition = -1;
+                        LiveItemAdapter a = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                         a.notifyDataSetChanged();
-                        LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
-                        LiveItemAdapter.selectedPosition =-1;
-                        adapter.notifyDataSetChanged();
-                        type_kategori_live="";
                     }
+//                    else if(id_menu ==2){
+//                        KategoriChannelAdapter.selectedPosition = -1;
+//                        KategoriChannelAdapter a = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+//                        a.notifyDataSetChanged();
+//                        LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+//                        LiveItemAdapter.selectedPosition =-1;
+//                        adapter.notifyDataSetChanged();
+//                        type_kategori_live="";
+//                    }
                     state_layar =1;
                 }else if(state_layar == 3) {
                     state_layar = 2;
@@ -890,27 +908,34 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     link_tv =TAG_EMPTY;
                     if(id_menu == 3){
                         link_tv ="";
-//                        sendData(fcm_client);
                         if(KategoriAdapter.selectedPosition - 1 >= 0){
                             KategoriAdapter.selectedPosition = KategoriAdapter.selectedPosition - 1;
                             KategoriAdapter a = (KategoriAdapter) rvKategoriStreaming.getAdapter();
                             a.notifyDataSetChanged();
                             rvKategoriStreaming.smoothScrollToPosition(KategoriAdapter.selectedPosition);
                         }
-                    }else if(id_menu ==2){
-                        link_tv =TAG_EMPTY;
-//                        sendData(fcm_client);
-                        if(KategoriChannelAdapter.selectedPosition - 1 >= 0){
-                            KategoriChannelAdapter.selectedPosition = KategoriChannelAdapter.selectedPosition - 1;
-                            KategoriChannelAdapter a = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
-                            a.notifyDataSetChanged();
-                            rvKategoriLiveStreaming.smoothScrollToPosition(KategoriChannelAdapter.selectedPosition);
+                    }else if(id_menu == 2){
+                        if(LiveItemAdapter.selectedPosition - 5 >= 0){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 5;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
                         }
                     }
+//                    else if(id_menu ==2){
+//                        link_tv =TAG_EMPTY;
+//                        if(KategoriChannelAdapter.selectedPosition - 1 >= 0){
+//                            KategoriChannelAdapter.selectedPosition = KategoriChannelAdapter.selectedPosition - 1;
+//                            KategoriChannelAdapter a = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+//                            a.notifyDataSetChanged();
+//                            rvKategoriLiveStreaming.smoothScrollToPosition(KategoriChannelAdapter.selectedPosition);
+//                        }
+//                    }
                 }else if(state_layar == 3){
                     if(id_menu ==3){
                         link_tv =TAG_EMPTY;
-//                        sendData(fcm_client);
                         if(ItemAdapter.selectedPosition - 4 >= 0){
                             ItemAdapter.selectedPosition = ItemAdapter.selectedPosition - 4;
                             ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
@@ -933,7 +958,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 // tombol bawah
                 if(state_layar == 1){
                     link_tv =TAG_EMPTY;
-//                    sendData(fcm_client);
                     if(AdapterMenuUtama.selectedPosition + 1 < maxleng){
                         AdapterMenuUtama.selectedPosition = AdapterMenuUtama.selectedPosition + 1;
                         AdapterMenuUtama adapter = (AdapterMenuUtama) rvMenu.getAdapter();
@@ -943,33 +967,41 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 }else if(state_layar ==2){
                     link_tv=TAG_EMPTY;
                     if(id_menu == 3){
-//                        sendData(fcm_client);
                         if(KategoriAdapter.selectedPosition + 1 < maxleng_kategori_streaming){
                             KategoriAdapter.selectedPosition = KategoriAdapter.selectedPosition + 1;
                             KategoriAdapter adapter = (KategoriAdapter) rvKategoriStreaming.getAdapter();
                             adapter.notifyDataSetChanged();
                             rvKategoriStreaming.smoothScrollToPosition(KategoriAdapter.selectedPosition);
                         }
-                    }else if(id_menu ==2){
-//                        sendData(fcm_client);
-                        if(KategoriChannelAdapter.selectedPosition + 1 < maxleng_kategori_live_streaming){
-                            KategoriChannelAdapter.selectedPosition = KategoriChannelAdapter.selectedPosition + 1;
-                            KategoriChannelAdapter adapter = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+                    }else if(id_menu == 2){
+                        if(LiveItemAdapter.selectedPosition + 5 < maxleng_live_streaming){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 5;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                             adapter.notifyDataSetChanged();
-                            rvKategoriLiveStreaming.smoothScrollToPosition(KategoriChannelAdapter.selectedPosition);
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
                         }
                     }
+//                    else if(id_menu ==2){
+//                        if(KategoriChannelAdapter.selectedPosition + 1 < maxleng_kategori_live_streaming){
+//                            KategoriChannelAdapter.selectedPosition = KategoriChannelAdapter.selectedPosition + 1;
+//                            KategoriChannelAdapter adapter = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+//                            adapter.notifyDataSetChanged();
+//                            rvKategoriLiveStreaming.smoothScrollToPosition(KategoriChannelAdapter.selectedPosition);
+//                        }
+//                    }
                 }else if(state_layar==3){
                     if(id_menu ==3){
                         link_tv=TAG_EMPTY;
-//                        sendData(fcm_client);
                         if(ItemAdapter.selectedPosition + 4 < maxleng_itemtv_streaming){
                             ItemAdapter.selectedPosition = ItemAdapter.selectedPosition + 4;
                             ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
                             adapter.notifyDataSetChanged();
                             rvitemKategoriStreaming.smoothScrollToPosition(ItemAdapter.selectedPosition);
                         }
-                    }else if(id_menu == 2){
+                    }
+                    else if(id_menu == 2){
                         if(LiveItemAdapter.selectedPosition + 4 < maxleng_live_streaming){
                             LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 4;
                             LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
@@ -986,7 +1018,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 if(state_layar ==3 ){
                     if(id_menu == 3){
                         link_tv= TAG_EMPTY;
-//                        sendData(fcm_client);
                         if(ItemAdapter.selectedPosition - 1 >= 0){
                             ItemAdapter.selectedPosition = ItemAdapter.selectedPosition - 1;
                             ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
@@ -1005,15 +1036,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     }
                 }else if(state_layar == 2){
                     if(id_menu ==2) {
-                        link_tv=TAG_EMPTY;
-//                        sendData(fcm_client);
-                        if (LiveItemAdapter.selectedPosition - 1 >= 0) {
-                            if (LiveItemAdapter.selectedPosition - 1 >= 0) {
-                                LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 1;
-                                LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
-                                adapter.notifyDataSetChanged();
-                                rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
-                            }
+                        if(LiveItemAdapter.selectedPosition - 1 >= 0){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition - 1;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
                         }
                     }
                 }
@@ -1031,6 +1060,17 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             rvitemKategoriStreaming.smoothScrollToPosition(ItemAdapter.selectedPosition);
                         }
                     }else if(id_menu == 2){
+                        if(LiveItemAdapter.selectedPosition + 1 < maxleng_live_streaming){
+                            LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 1;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            LiveItemAdapter adapter = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                            adapter.notifyDataSetChanged();
+                            rvLiveStreaming.smoothScrollToPosition(LiveItemAdapter.selectedPosition);
+                        }
+                    }
+                }else if(state_layar ==2){
+                    if(id_menu == 2){
                         if(LiveItemAdapter.selectedPosition + 1 < maxleng_live_streaming){
                             LiveItemAdapter.selectedPosition = LiveItemAdapter.selectedPosition + 1;
                             LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
@@ -1058,18 +1098,17 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         llStreaming.setVisibility(View.INVISIBLE);
                         llFcmId.setVisibility(View.INVISIBLE);
                     }else if(id_menu == 2){
+                        getListChannel("");
                         state_layar = 2;
                         llHome.setVisibility(View.INVISIBLE);
                         llLiveStreaming.setVisibility(View.VISIBLE);
                         llStreaming.setVisibility(View.INVISIBLE);
                         llFcmId.setVisibility(View.INVISIBLE);
-                        KategoriChannelAdapter.selectedPosition=0;
-                        KategoriChannelAdapter a = (KategoriChannelAdapter) rvKategoriLiveStreaming.getAdapter();
+                        LiveItemAdapter.selectedPosition=0;
+                        LiveItemAdapter a = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                         a.notifyDataSetChanged();
-                        KategoriChannelModel model = kategoriChannelModel.get(0);
-                        sessionManager.saveKategoriLiveStreaming(model.getId());
+                        LiveItemModel model = customItems.get(0);
                         type_kategori_live="all";
-                        getListChannel("");
                     }else if(id_menu == 3){
                         ItemAdapter.selectedPosition =-1;
                         ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
@@ -1095,21 +1134,27 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 else if(state_layar == 2){
                     switch (id_menu){
                         case 2:
-                            if(menu_live_streaming.getId().equals("0")){
-//                                isChannel = false;
-                                state_layar = 3;
-                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
-                                LiveItemAdapter.selectedPosition =0;
-                                type_kategori_live="all";
-                                getListChannel("remote");
-                            }else{
-//                                isChannel = false;
-                                state_layar = 3;
-                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
-                                LiveItemAdapter.selectedPosition =0;
-                                type_kategori_live="";
-                                getListChannel("remote");
-                            }
+                            setBack = false;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            Intent intent = new Intent(MainActivity.this, LiveViewActivity.class);
+                            intent.putExtra("nama", model.getNama());
+                            intent.putExtra("link", model.getLink());
+                            startActivity(intent);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//                            if(menu_live_streaming.getId().equals("0")){
+//                                state_layar = 3;
+//                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
+//                                LiveItemAdapter.selectedPosition =0;
+//                                type_kategori_live="all";
+//                                getListChannel("remote");
+//                            }else{
+//                                state_layar = 3;
+//                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
+//                                LiveItemAdapter.selectedPosition =0;
+//                                type_kategori_live="";
+//                                getListChannel("remote");
+//                            }
                             break;
                         case 3:
                             if(menu_streaming.getId().equals("0")){
@@ -1177,6 +1222,147 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     }
                 }
                 break;
+
+            case 66:
+                // tombol ok
+                id_menu = item.getId();
+                if(state_layar == 1){
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    if(id_menu == 1){
+                        initDataSlider();
+                        initSlider();
+                        state_layar=1;
+                        llHome.setVisibility(View.VISIBLE);
+                        llLiveStreaming.setVisibility(View.INVISIBLE);
+                        llStreaming.setVisibility(View.INVISIBLE);
+                        llFcmId.setVisibility(View.INVISIBLE);
+                    }else if(id_menu == 2){
+                        getListChannel("");
+                        state_layar = 2;
+                        llHome.setVisibility(View.INVISIBLE);
+                        llLiveStreaming.setVisibility(View.VISIBLE);
+                        llStreaming.setVisibility(View.INVISIBLE);
+                        llFcmId.setVisibility(View.INVISIBLE);
+                        LiveItemAdapter.selectedPosition=0;
+                        LiveItemAdapter a = (LiveItemAdapter) rvLiveStreaming.getAdapter();
+                        a.notifyDataSetChanged();
+                        LiveItemModel model = customItems.get(0);
+                        type_kategori_live="all";
+                    }else if(id_menu == 3){
+                        ItemAdapter.selectedPosition =-1;
+                        ItemAdapter adapter = (ItemAdapter) rvitemKategoriStreaming.getAdapter();
+                        adapter.notifyDataSetChanged();
+                        KategoriAdapter.selectedPosition=0;
+                        KategoriAdapter a = (KategoriAdapter) rvKategoriStreaming.getAdapter();
+                        a.notifyDataSetChanged();
+                        llHome.setVisibility(View.INVISIBLE);
+                        llLiveStreaming.setVisibility(View.INVISIBLE);
+                        llStreaming.setVisibility(View.VISIBLE);
+                        llFcmId.setVisibility(View.INVISIBLE);
+                        state_layar=2;
+                        type_kategori_streaming="all";
+                        initItemTVStreaming();
+                    }else if(id_menu ==4) {
+                        llHome.setVisibility(View.INVISIBLE);
+                        llLiveStreaming.setVisibility(View.INVISIBLE);
+                        llStreaming.setVisibility(View.INVISIBLE);
+                        llFcmId.setVisibility(View.VISIBLE);
+                        state_layar =1;
+                    }
+                }
+                else if(state_layar == 2){
+                    switch (id_menu){
+                        case 2:
+                            setBack = false;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            Intent intent = new Intent(MainActivity.this, LiveViewActivity.class);
+                            intent.putExtra("nama", model.getNama());
+                            intent.putExtra("link", model.getLink());
+                            startActivity(intent);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//                            if(menu_live_streaming.getId().equals("0")){
+//                                state_layar = 3;
+//                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
+//                                LiveItemAdapter.selectedPosition =0;
+//                                type_kategori_live="all";
+//                                getListChannel("remote");
+//                            }else{
+//                                state_layar = 3;
+//                                sessionManager.saveKategoriLiveStreaming(menu_live_streaming.getId());
+//                                LiveItemAdapter.selectedPosition =0;
+//                                type_kategori_live="";
+//                                getListChannel("remote");
+//                            }
+                            break;
+                        case 3:
+                            if(menu_streaming.getId().equals("0")){
+                                type_kategori_streaming="all";
+                                link_tv=TAG_EMPTY;
+                                state_layar =3;
+                                onClickKategoriStreaming(menu_streaming.getId());
+                                break;
+                            }else{
+                                type_kategori_streaming="";
+                                link_tv=TAG_EMPTY;
+                                state_layar =3;
+                                onClickKategoriStreaming(menu_streaming.getId());
+                                break;
+                            }
+                    }
+                }
+                else if(state_layar ==3){
+                    final List<String> installedPackages = Utils.getInstalledAppsPackageNameList(MainActivity.this);
+                    switch (id_menu){
+                        case 3:
+                            link_tv=TAG_EMPTY;
+                            ItemModel m = itemModelTvStreaming.get(ItemAdapter.selectedPosition);
+                            if(installedPackages.contains(m.getM_package())){
+                                Intent launchIntent = MainActivity.this.getPackageManager().getLaunchIntentForPackage(m.getM_package());
+                                MainActivity.this.startActivity( launchIntent );
+                            }else {
+                                if(m.getM_package().isEmpty()){
+                                    if(m.getUrl_playstore().isEmpty()){
+                                        if(m.getUrl_web().isEmpty()){
+                                            Toast.makeText(MainActivity.this, "Paket tidak ditemukan !!..", Toast.LENGTH_SHORT).show();
+                                        }else{
+                                            Intent httpIntent = new Intent(Intent.ACTION_VIEW);
+                                            httpIntent.setData(Uri.parse(m.getUrl_web()));
+                                            MainActivity.this.startActivity(httpIntent);
+                                        }
+                                    }else{
+                                        try {
+                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id="+m.getM_package())));
+                                        } catch (android.content.ActivityNotFoundException anfe) {
+                                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+m.getM_package())));
+                                        }
+                                    }
+                                }else{
+                                    try {
+                                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id="+m.getM_package())));
+                                    } catch (android.content.ActivityNotFoundException anfe) {
+                                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id="+m.getM_package())));
+                                    }
+                                }
+                            }
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                            break;
+                        case 2:
+                            setBack = false;
+                            LiveItemModel model = customItems.get(LiveItemAdapter.selectedPosition);
+                            link_tv = model.getLink();
+                            Intent intent = new Intent(MainActivity.this, LiveViewActivity.class);
+                            intent.putExtra("nama", model.getNama());
+                            intent.putExtra("link", model.getLink());
+                            startActivity(intent);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                            break;
+                    }
+                }
+                break;
+            case  61:
+                getDevice();
+                break;
 //            case 24:
 //                audioManager.adjustStreamVolume(
 //                        AudioManager.STREAM_MUSIC,
@@ -1194,6 +1380,34 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 //
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void getDevice(){
+        JSONObject jbody = new JSONObject();
+
+        new ApiVolley(MainActivity.this, jbody, "POST", ServerURL.url_profile_device,
+                new AppRequestCallback(new AppRequestCallback.ResponseListener() {
+                    @Override
+                    public void onSuccess(String response, String message) {
+                        try{
+                            JSONObject res = new JSONObject(response);
+                            Toast.makeText(MainActivity.this, "Device id "+res.getString("id_device"), Toast.LENGTH_SHORT).show();
+                        }
+                        catch (JSONException e){
+                            Toast.makeText(MainActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override
+                    public void onEmpty(String message) {
+                        Toast.makeText(MainActivity.this, "Maaf device anda belum terdaftar", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFail(String message) {
+                        Toast.makeText(MainActivity.this, "Terjadi kesalahan data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        );
     }
 //
 //    @Override

@@ -50,17 +50,17 @@
                 android:gravity="center_vertical|left">
 
                 <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="45dp"
+                    android:layout_width="@dimen/_90sdp"
+                    android:layout_height="@dimen/_40sdp"
                     android:id="@+id/iv_tv_logo"
-                    android:src="@drawable/logo_fb"/>
+                    android:src="@drawable/ic_logo_fiberstar2"/>
 
                 <id.net.gmedia.zigistreamingbox.CustomView.ScrollTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/tv_user"
                     android:visibility="gone"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/_14sdp"
                     android:alpha="0.8"
                     android:padding="4dp"
                     android:background="@color/color_blue_dark"

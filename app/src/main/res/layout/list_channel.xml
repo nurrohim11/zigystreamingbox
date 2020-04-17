@@ -3,16 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/rv_master"
-    android:layout_marginLeft="@dimen/default_margin_small"
-    android:padding="@dimen/default_margin_small">
+    android:layout_marginLeft="@dimen/_6sdp"
+    android:padding="@dimen/_6sdp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/color_white"
-        android:textSize="15sp"
-        android:layout_marginRight="4dp"
-        android:layout_marginLeft="4dp"
+        android:textSize="@dimen/_12sdp"
+        android:layout_marginRight="@dimen/_2sdp"
+        android:layout_marginLeft="@dimen/_2sdp"
         android:gravity="center"
         android:maxLines="1"
         android:layout_marginBottom="4dp"
@@ -27,8 +27,8 @@
         android:shadowRadius="2"/>
 
     <RelativeLayout
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="@dimen/_75sdp"
+        android:layout_height="@dimen/_75sdp"
         android:layout_above="@id/tv_item2"
         android:layout_centerInParent="true"
         android:id="@+id/rl_container">
@@ -37,20 +37,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:layout_margin="@dimen/default_margin_small"
+            android:layout_margin="@dimen/_6sdp"
             android:scaleType="centerInside"
             android:id="@+id/iv_icon"/>
 
         <TextView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
             android:gravity="center"
             android:visibility="gone"
             android:layout_margin="@dimen/default_margin_small"
             android:id="@+id/tv_item1"
             android:background="@drawable/circle_bg_icon"
             android:layout_centerInParent="true"
-            android:textSize="25sp"
+            android:textSize="@dimen/_20sdp"
             android:textStyle="bold"
             android:textColor="@color/color_white"
             android:text="R"/>
