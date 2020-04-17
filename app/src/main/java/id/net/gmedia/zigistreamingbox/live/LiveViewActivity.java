@@ -74,11 +74,9 @@ import id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils;
 import id.net.gmedia.zigistreamingbox.live.adapter.ListChannelIconAdapter;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.utils.CustomVideoView;
-import id.net.gmedia.zigistreamingbox.utils.FormatItem;
 import id.net.gmedia.zigistreamingbox.utils.InternetCheck;
 import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
-import id.net.gmedia.zigistreamingbox.utils.Url;
 
 public class LiveViewActivity extends AppCompatActivity {
 

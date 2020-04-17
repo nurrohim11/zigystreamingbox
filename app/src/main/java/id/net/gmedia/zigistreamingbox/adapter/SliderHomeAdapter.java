@@ -10,14 +10,11 @@ import android.widget.ImageView;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.SliderModel;
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class SliderHomeAdapter extends PagerAdapter {
 //    private ArrayList<Integer> IMAGES;

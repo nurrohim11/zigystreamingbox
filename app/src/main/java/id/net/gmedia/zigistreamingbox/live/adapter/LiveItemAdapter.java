@@ -31,7 +31,6 @@ import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
-import id.net.gmedia.zigistreamingbox.utils.Url;
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class LiveItemAdapter extends RecyclerView.Adapter<LiveItemAdapter.ViewHolder>  {

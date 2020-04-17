@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("id.net.gmedia.zigistreamingbox", appContext.getPackageName());
+        assertEquals("id.net.fiberstream.stb", appContext.getPackageName());
     }
 }

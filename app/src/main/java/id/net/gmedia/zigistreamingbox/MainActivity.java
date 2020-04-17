@@ -19,12 +19,10 @@ import android.net.Uri;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -36,16 +34,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -58,39 +47,19 @@ import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
-
 import co.id.gmedia.coremodul.ApiVolley;
-import co.id.gmedia.coremodul.ApiVolley2;
 import co.id.gmedia.coremodul.AppRequestCallback;
 import co.id.gmedia.coremodul.CustomModel;
 import co.id.gmedia.coremodul.ItemValidation;
@@ -100,7 +69,6 @@ import id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils;
 import id.net.gmedia.zigistreamingbox.adapter.SliderHomeAdapter;
 import id.net.gmedia.zigistreamingbox.live.LiveViewActivity;
 import id.net.gmedia.zigistreamingbox.live.adapter.KategoriChannelAdapter;
-import id.net.gmedia.zigistreamingbox.live.model.KategoriChannelModel;
 import id.net.gmedia.zigistreamingbox.live.model.LiveItemModel;
 import id.net.gmedia.zigistreamingbox.live.adapter.LiveItemAdapter;
 import id.net.gmedia.zigistreamingbox.streaming.ItemAdapter;
@@ -110,9 +78,7 @@ import id.net.gmedia.zigistreamingbox.streaming.KategoriModel;
 import id.net.gmedia.zigistreamingbox.utils.InternetCheck;
 import id.net.gmedia.zigistreamingbox.utils.SavedChanelManager;
 import id.net.gmedia.zigistreamingbox.utils.ServerURL;
-import id.net.gmedia.zigistreamingbox.utils.Url;
 import id.net.gmedia.zigistreamingbox.utils.Utils;
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_NAME;
 import static id.net.gmedia.zigistreamingbox.RemoteUtils.ServiceUtils.SERVICE_TYPE;
@@ -1360,7 +1326,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     }
                 }
                 break;
-            case  61:
+            case 61:
                 getDevice();
                 break;
 //            case 24:
@@ -1384,7 +1350,11 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     private void getDevice(){
         JSONObject jbody = new JSONObject();
-
+        try {
+            jbody.put("fcm_id",sessionManager.getFcmid());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         new ApiVolley(MainActivity.this, jbody, "POST", ServerURL.url_profile_device,
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
                     @Override

@@ -1,29 +1,20 @@
 package id.net.gmedia.zigistreamingbox.home;
 
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
-import android.widget.RelativeLayout;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
 import id.net.gmedia.zigistreamingbox.R;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
-import static id.net.gmedia.zigistreamingbox.utils.Screen.getScreenHeight;
-import static id.net.gmedia.zigistreamingbox.utils.Screen.getScreenWidth;
 
 
 /**

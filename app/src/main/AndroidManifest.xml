@@ -20,10 +20,10 @@
         android:roundIcon="@drawable/ziggylogo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".live.LiveViewActivity"
+        <activity android:name="id.net.gmedia.zigistreamingbox.live.LiveViewActivity"
             android:screenOrientation="landscape"/>
         <activity
-            android:name=".MainActivity"
+            android:name="id.net.gmedia.zigistreamingbox.MainActivity"
             android:screenOrientation="landscape"
             android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true">
@@ -35,7 +35,7 @@
 
             </intent-filter>
         </activity>
-        <receiver android:enabled="true" android:name=".utils.BootUpReceiver"
+        <receiver android:enabled="true" android:name="id.net.gmedia.zigistreamingbox.utils.BootUpReceiver"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
 
             <intent-filter>
@@ -49,7 +49,7 @@
         </receiver>
 
         <service
-            android:name=".utils.ServiceTimerServer"
+            android:name="id.net.gmedia.zigistreamingbox.utils.ServiceTimerServer"
             android:exported="false" />
     </application>
 

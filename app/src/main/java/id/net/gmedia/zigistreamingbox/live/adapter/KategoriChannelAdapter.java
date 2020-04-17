@@ -16,7 +16,6 @@ import java.util.List;
 
 import id.net.gmedia.zigistreamingbox.R;
 import id.net.gmedia.zigistreamingbox.live.model.KategoriChannelModel;
-import id.net.gmedia.zigistreamingbox.streaming.KategoriModel;
 
 public class KategoriChannelAdapter  extends RecyclerView.Adapter<KategoriChannelAdapter.ViewHolder>  {
     private List<KategoriChannelModel> kategoriModels;
