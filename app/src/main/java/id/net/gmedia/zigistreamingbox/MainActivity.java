@@ -489,11 +489,11 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         );
     }
 
-    private void initItemTVStreaming(){
+    private void initItemTVStreaming(String type, String kategori){
         JSONObject jBody = new JSONObject();
         try {
-            jBody.put("type",type_kategori_streaming);
-            jBody.put("kategori",kategori_streaming);
+            jBody.put("type",type);
+            jBody.put("kategori",kategori);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -557,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                initItemTVStreaming();
+                                initItemTVStreaming("all","");
                             }
                         });
                     }else{
@@ -742,7 +742,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 llStreaming.setVisibility(View.VISIBLE);
                 llFcmId.setVisibility(View.INVISIBLE);
                 initKategoriStreaming();
-                    initItemTVStreaming();
+                initItemTVStreaming("all","");
                 break;
             case 4:
                 llHome.setVisibility(View.INVISIBLE);
@@ -1087,8 +1087,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         llStreaming.setVisibility(View.VISIBLE);
                         llFcmId.setVisibility(View.INVISIBLE);
                         state_layar=2;
-                        type_kategori_streaming="all";
-                        initItemTVStreaming();
+//                        type_kategori_streaming="all";
+                        initItemTVStreaming("all","");
                     }else if(id_menu ==4) {
                         llHome.setVisibility(View.INVISIBLE);
                         llLiveStreaming.setVisibility(View.INVISIBLE);
@@ -1227,7 +1227,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         llFcmId.setVisibility(View.INVISIBLE);
                         state_layar=2;
                         type_kategori_streaming="all";
-                        initItemTVStreaming();
+                        initItemTVStreaming("all","");
                     }else if(id_menu ==4) {
                         llHome.setVisibility(View.INVISIBLE);
                         llLiveStreaming.setVisibility(View.INVISIBLE);
@@ -1838,8 +1838,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
 //        initSlider();
         // load menu kategori streaming
+        KategoriAdapter.selectedPosition =0;
         initKategoriStreaming();
-        initItemTVStreaming();
+        initItemTVStreaming("all","");
         // load slider
 //        initDataSlider();
         if (Build.VERSION.SDK_INT >= 21) {
