@@ -541,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         );
     }
 
-    public void getDataItemTvStreamingWithConntection() {
+    public void getDataItemTvStreamingWithConntection(final String id_kategori) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -557,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                initItemTVStreaming("all","");
+                                initItemTVStreaming("all",id_kategori);
                             }
                         });
                     }else{
@@ -757,13 +757,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
     @Override
     public void onRowKategoriCallback(String id_kategori) {
         kategori_streaming = id_kategori;
-        getDataItemTvStreamingWithConntection();
+        getDataItemTvStreamingWithConntection(id_kategori);
     }
 
     private void onClickKategoriStreaming(String id_kategori){
         kategori_streaming = id_kategori;
         ItemAdapter.selectedPosition = 0;
-        getDataItemTvStreamingWithConntection();
+        getDataItemTvStreamingWithConntection(id_kategori);
     }
 
     private void onClickKategoriLiveStreaming(String id_kategori){
@@ -1124,7 +1124,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             break;
                         case 3:
                             if(menu_streaming.getId().equals("0")){
-                                type_kategori_streaming="all";
                                 link_tv=TAG_EMPTY;
                                 state_layar =3;
                                 onClickKategoriStreaming(menu_streaming.getId());
