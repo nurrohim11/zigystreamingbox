@@ -816,9 +816,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         TAG_LINK ="";
         switch (keyCode){
-            case 0:
-                Toast.makeText(this, "home", Toast.LENGTH_SHORT).show();
-                break;
+//            case 0:
+//                Toast.makeText(this, "home", Toast.LENGTH_SHORT).show();
+//                break;
             case 4:
                 link_tv =TAG_EMPTY;
                 if(state_layar == 2){
