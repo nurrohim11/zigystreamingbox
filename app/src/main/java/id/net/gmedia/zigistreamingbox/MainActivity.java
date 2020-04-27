@@ -10,6 +10,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.media.AudioManager;
@@ -170,8 +172,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         setContentView(R.layout.activity_main);
         sessionManager = new SessionManager(MainActivity.this);
 
-//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         // TODO mencari network untuk remote
         if(isNetworkAvailable()){
             initializeRegistrationListener();
@@ -231,19 +231,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
         // == ========= ==inisialisasi kontent menu live streaming == ========= ==
         rvLiveStreaming = findViewById(R.id.rv_item_live_streaming);
-//        rvKategoriLiveStreaming = findViewById(R.id.rv_kategori_live_streaming);
-//        pbLoading = (ProgressBar) findViewById(R.id.pb_loading);
-//        chanelManager = new SavedChanelManager(MainActivity.this);
-//        savedChanel = new SavedChanelManager(MainActivity.this);
-//        savedC = 0;
-//        kategoriChannelAdapter = new KategoriChannelAdapter(this, kategoriChannelModel ,this);
-//        GridLayoutManager layoutManagerKategoriLive = new GridLayoutManager(this,1);
-//        layoutManagerKategoriLive.setOrientation(LinearLayoutManager.VERTICAL);
-//        rvKategoriLiveStreaming.setLayoutManager(layoutManagerKategoriLive);
-//        rvKategoriLiveStreaming.setItemAnimator(new DefaultItemAnimator());
-//        rvKategoriLiveStreaming.setAdapter(kategoriChannelAdapter);
-//        initKategoriLiveStreaming();
-
         liveItemAdapter = new LiveItemAdapter(this, customItems);
         RecyclerView.LayoutManager gridLayoutManager = new GridLayoutManager(this, 5);
         rvLiveStreaming.setLayoutManager(gridLayoutManager);
@@ -303,6 +290,8 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
             llFcmId.setVisibility(View.INVISIBLE);
         }
         initUi();
+
+        initializeReceiver();
     }
 
     private void initUi(){
@@ -541,11 +530,10 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
         );
     }
 
-    public void getDataItemTvStreamingWithConntection(final String id_kategori) {
+    public void getDataItemTvStreamingWithConntection(final String type, final String id_kategori) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        //return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 
         if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
             new InternetCheck(MainActivity.this).isInternetConnectionAvailable(new InternetCheck.InternetCheckListener() {
@@ -557,7 +545,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                initItemTVStreaming("all",id_kategori);
+                                initItemTVStreaming(type,id_kategori);
                             }
                         });
                     }else{
@@ -598,7 +586,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 new AppRequestCallback(new AppRequestCallback.ResponseListener() {
                     @Override
                     public void onSuccess(String response, String message) {
-//                        Log.d(TAG,response);
                         customItems.clear();
                         try{
                             JSONArray obj = new JSONArray(response);
@@ -755,15 +742,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     // ===================================== Interface Kategori Adapter ================================
     @Override
-    public void onRowKategoriCallback(String id_kategori) {
+    public void onRowKategoriCallback(String type,String id_kategori) {
         kategori_streaming = id_kategori;
-        getDataItemTvStreamingWithConntection(id_kategori);
+        getDataItemTvStreamingWithConntection(type,id_kategori);
     }
 
-    private void onClickKategoriStreaming(String id_kategori){
+    private void onClickKategoriStreaming(String type,String id_kategori){
         kategori_streaming = id_kategori;
         ItemAdapter.selectedPosition = 0;
-        getDataItemTvStreamingWithConntection(id_kategori);
+        getDataItemTvStreamingWithConntection(type,id_kategori);
     }
 
     private void onClickKategoriLiveStreaming(String id_kategori){
@@ -792,7 +779,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Toast.makeText(this, String.valueOf(keyCode), Toast.LENGTH_SHORT).show();
         int maxleng = (menuModels != null) ? menuModels.size() : 0;
         int maxleng_kategori_streaming = (itemKategoriStreaming != null) ? itemKategoriStreaming.size() : 0;
 //        int maxleng_kategori_live_streaming = (kategoriChannelModel != null) ? kategoriChannelModel.size() : 0;
@@ -1048,6 +1034,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     }
                 }
                 break;
+//            case 23:
+//                Toast.makeText(this, "TOMBOL JALAN", Toast.LENGTH_SHORT).show();
+//                break;
             case 23:
                 // tombol ok
                 id_menu = item.getId();
@@ -1073,7 +1062,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                         LiveItemAdapter.selectedPosition=0;
                         LiveItemAdapter a = (LiveItemAdapter) rvLiveStreaming.getAdapter();
                         a.notifyDataSetChanged();
-                        LiveItemModel model = customItems.get(0);
                         type_kategori_live="all";
                     }else if(id_menu == 3){
                         ItemAdapter.selectedPosition =-1;
@@ -1126,13 +1114,13 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             if(menu_streaming.getId().equals("0")){
                                 link_tv=TAG_EMPTY;
                                 state_layar =3;
-                                onClickKategoriStreaming(menu_streaming.getId());
+                                onClickKategoriStreaming("all","0");
                                 break;
                             }else{
                                 type_kategori_streaming="";
                                 link_tv=TAG_EMPTY;
                                 state_layar =3;
-                                onClickKategoriStreaming(menu_streaming.getId());
+                                onClickKategoriStreaming("",menu_streaming.getId());
                                 break;
                             }
                     }
@@ -1145,6 +1133,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 //                            sendData(fcm_client);
                             ItemModel m = itemModelTvStreaming.get(ItemAdapter.selectedPosition);
                             if(installedPackages.contains(m.getM_package())){
+
+//                                PackageInfo versionCode = null;
+//                                try {
+//                                    versionCode = this.getPackageManager().getPackageInfo(m.getM_package(), 0);
+//                                    String version = versionCode.versionName;
+//                                    Toast.makeText(MainActivity.this, version, Toast.LENGTH_SHORT).show();
+//                                } catch (PackageManager.NameNotFoundException e) {
+//                                    e.printStackTrace();
+//                                }
                                 Intent launchIntent = MainActivity.this.getPackageManager().getLaunchIntentForPackage(m.getM_package());
                                 MainActivity.this.startActivity( launchIntent );
                             }else {
@@ -1262,16 +1259,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             break;
                         case 3:
                             if(menu_streaming.getId().equals("0")){
-                                type_kategori_streaming="all";
                                 link_tv=TAG_EMPTY;
                                 state_layar =3;
-                                onClickKategoriStreaming(menu_streaming.getId());
+                                onClickKategoriStreaming("all","0");
                                 break;
                             }else{
                                 type_kategori_streaming="";
                                 link_tv=TAG_EMPTY;
                                 state_layar =3;
-                                onClickKategoriStreaming(menu_streaming.getId());
+                                onClickKategoriStreaming("",menu_streaming.getId());
                                 break;
                             }
                     }
@@ -1283,6 +1279,15 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                             link_tv=TAG_EMPTY;
                             ItemModel m = itemModelTvStreaming.get(ItemAdapter.selectedPosition);
                             if(installedPackages.contains(m.getM_package())){
+
+//                                PackageInfo versionCode = null;
+//                                try {
+//                                    versionCode = this.getPackageManager().getPackageInfo(m.getM_package(), 0);
+//                                    String version = versionCode.versionName;
+//                                    Toast.makeText(MainActivity.this, version, Toast.LENGTH_SHORT).show();
+//                                } catch (PackageManager.NameNotFoundException e) {
+//                                    e.printStackTrace();
+//                                }
                                 Intent launchIntent = MainActivity.this.getPackageManager().getLaunchIntentForPackage(m.getM_package());
                                 MainActivity.this.startActivity( launchIntent );
                             }else {
@@ -1342,7 +1347,7 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
 //                        AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
 //                link_tv=TAG_EMPTY;
 //                break;
-//
+
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -1811,7 +1816,6 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                     NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
             registerService(ServiceUtils.DEFAULT_PORT);
             // NSD Stuff
-            initializeReceiver();
         }
 
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
@@ -1847,9 +1851,9 @@ public class MainActivity extends AppCompatActivity implements AdapterMenuUtama.
                 registerService(ServiceUtils.DEFAULT_PORT);
 
             }
-
-            initializeReceiver();
         }
+
+        initializeReceiver();
     }
 
     @Override

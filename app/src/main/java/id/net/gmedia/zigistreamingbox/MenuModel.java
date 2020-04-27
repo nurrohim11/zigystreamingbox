@@ -9,6 +9,11 @@ public class MenuModel {
         this.menu = menu;
     }
 
+    public MenuModel(int id, String menu){
+        this.id =id;
+        this.menu = menu;
+    }
+
     public int getId(){
         return id;
     }

@@ -58,7 +58,12 @@ public class KategoriAdapter extends RecyclerView.Adapter<KategoriAdapter.ViewHo
                 selectedPosition=position;
                 notifyDataSetChanged();
                 kat[0] = kategoriModels.get(position).getId();
-                mAdapterCallback.onRowKategoriCallback(kategoriModels.get(position).getId());
+                String type = "";
+                if(kategoriModels.get(position).getId().equals("0")){
+                    mAdapterCallback.onRowKategoriCallback("all",kategoriModels.get(position).getId());
+                }else {
+                    mAdapterCallback.onRowKategoriCallback("",kategoriModels.get(position).getId());
+                }
             }
         });
     }
@@ -76,7 +81,7 @@ public class KategoriAdapter extends RecyclerView.Adapter<KategoriAdapter.ViewHo
         }
     }
     public interface KategoriAdapterCallback {
-        void onRowKategoriCallback(String id_kategori);
+        void onRowKategoriCallback(String type,String id_kategori);
     }
 
 

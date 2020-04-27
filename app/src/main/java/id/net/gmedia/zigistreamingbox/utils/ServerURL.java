@@ -10,6 +10,7 @@ public class ServerURL {
     private static String base_url ="http://gmedia.bz/zigystreaming/api/";
 
     public static String get_slider =base_url+"master/iklan";
+    public static String get_menu = base_url+"authentication/menu";
     public static String post_fcmid = base_url+"authentication/auth";
     public static String get_kategori_streaming = base_url+"streaming/kategori_streaming";
     public static String get_konten_streaming = base_url+"streaming/item_streaming";

@@ -27,6 +27,10 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
         this.context =context;
         this.mAdapterCallback = adapterCallback;
     }
+    public AdapterMenuUtama(Context context, List<MenuModel> moviesList) {
+        this.menuModels = moviesList;
+        this.context =context;
+    }
 
     @NonNull
     @Override
@@ -59,7 +63,7 @@ public class AdapterMenuUtama extends RecyclerView.Adapter<AdapterMenuUtama.View
             public void onClick(View v) {
                 selectedPosition=position;
                 notifyDataSetChanged();
-                mAdapterCallback.loadContent(menuModel.getId());
+//                mAdapterCallback.loadContent(menuModel.getId());
             }
         });
     }

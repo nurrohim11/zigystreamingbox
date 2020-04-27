@@ -369,6 +369,7 @@ public class LiveViewActivity extends AppCompatActivity {
                                 vvPlayVideo.suspend();
                                 vvPlayVideo.setVideoURI(null);
 
+//                                Uri uri = Uri.parse("http://channel1.fiberstream.id/hls/metrotvhd.m3u8");
                                 Uri uri = Uri.parse(url);
                                 savedChanel.saveLastChanel(nama, url);
                                 vvPlayVideo.setVideoURI(uri);
